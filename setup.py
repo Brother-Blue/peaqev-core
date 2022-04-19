@@ -6,5 +6,5 @@ setuptools.setup(
     author="Magnus Eldén",
     description="",
     packages=["Peaqev_core"],
-    install_requires=[],
+    install_requires=['pytest',],
 )   
