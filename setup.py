@@ -1,10 +1,10 @@
 import setuptools
 
 setuptools.setup(
-    name="peaqev-core",
-    version="0.0.1",
+    name="peaqevcore",
+    version="0.0.4",
     author="Magnus Eldén",
     description="",
-    packages=["Peaqev_core"],
+    packages=["Peaqevcore"],
     install_requires=['pytest',],
 )   
