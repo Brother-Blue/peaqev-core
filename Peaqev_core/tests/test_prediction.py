@@ -1,9 +1,9 @@
 import pytest
-import Prediction as p
+from Prediction import PredictionBase as p
 
 
 def test_prediction():
-       ret = p.PredictionBase.predictedenergy(
+       ret = p.predictedenergy(
        nowmin=13,
        nowsec=37,
        poweravg=420,
