@@ -1,5 +1,7 @@
 
 class ThresholdBase:
+    BASECURRENT = 6
+
     @staticmethod
     def stop(
               nowmin:int,
@@ -32,7 +34,7 @@ class ThresholdBase:
             totalenergy: float,
             peak: float
             ) -> int:
-        ret = 6
+        ret = ThresholdBase.BASECURRENT
         if charger_enabled is False or charger_done is True or movingavg == 0:
             return ret
         currents = currentsdict
