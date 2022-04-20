@@ -1,7 +1,7 @@
+from peaqevcore.Threshold import ThresholdBase as t
+from Models import CURRENTS_THREEPHASE_1_32
 import pytest
-from Peaqevcore.Threshold import ThresholdBase as t
 
-MOCKCURRENTS_DICT = {22000: 32, 20625: 30, 19250: 28, 17875: 26, 16500: 24, 15125: 22, 13750: 20, 12375: 18, 11000: 16, 9625: 14, 8250: 12, 6875: 10, 5500: 8, 4100: 6}
 
 def test_start():
     ret = t.start(50, False)
@@ -37,7 +37,7 @@ def test_allowed_current_base():
         movingavg=1,
         charger_enabled=False,
         charger_done=False,
-        currentsdict=MOCKCURRENTS_DICT,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
         totalenergy=0,
         peak=1
     )
@@ -49,7 +49,7 @@ def test_allowed_current_1():
         movingavg=560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=MOCKCURRENTS_DICT,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
         totalenergy=0.3,
         peak=10
     )
@@ -61,7 +61,7 @@ def test_allowed_current_2():
         movingavg=560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=MOCKCURRENTS_DICT,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
         totalenergy=0.3,
         peak=10
     )

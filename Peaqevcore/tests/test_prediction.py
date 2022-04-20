@@ -1,5 +1,6 @@
+from peaqevcore.Prediction import PredictionBase as p
 import pytest
-from Peaqevcore.Prediction import PredictionBase as p
+
 
 def test_prediction():
        ret = p.predictedenergy(
