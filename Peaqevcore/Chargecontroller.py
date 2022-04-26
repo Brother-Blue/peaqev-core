@@ -1,24 +1,23 @@
-# import time
-# from datetime import datetime
-# from .Models import CHARGERSTATES
+import time
+from datetime import datetime
+from .Models import CHARGERSTATES
 
 class ChargeControllerBase:  
-    # def __init__(
-    #     self,
-    #     charger_state_translation:dict[CHARGERSTATES,list[str]],
-    #     non_hours:list[int] = [],
-    #     timeout:int = 180
-    # ):
-    #     self._charger_state_translation = self._check_charger_states(charger_state_translation)
-    #     self._done_timeout = timeout
-    #     self._latest_charger_start = time.time()
-    #     self._non_hours = non_hours
+    def __init__(
+        self,
+        charger_state_translation:dict[CHARGERSTATES,list[str]],
+        non_hours:list[int] = [],
+        timeout:int = 180
+    ):
+        self._charger_state_translation = self._check_charger_states(charger_state_translation)
+        self._done_timeout = timeout
+        self._latest_charger_start = time.time()
+        self._non_hours = non_hours
     
-    # @property
-    # def done_timeout(self):
-    #     return self._done_timeout
+    @property
+    def done_timeout(self):
+        return self._done_timeout
 
-    @staticmethod
     def below_start_threshold(
             self,
             predicted_energy: float,
@@ -34,7 +33,6 @@ class ChargeControllerBase:
         """
         return (predicted_energy * 1000) < ((current_peak * 1000) * threshold_start)
 
-    @staticmethod
     def above_stop_threshold(
             self,
             predicted_energy: float,
@@ -58,9 +56,9 @@ class ChargeControllerBase:
     # def latest_charger_start(self, val=None):
     #     self._latest_charger_start = time.time()
     
-    # @property
-    # def _is_timeout(self) -> bool:
-    #     return time.time() - self.latest_charger_start > self._done_timeout
+    @property
+    def _is_timeout(self) -> bool:
+        return time.time() - self.latest_charger_start > self._done_timeout
 
     # def get_status(
     #     self,
@@ -112,10 +110,10 @@ class ChargeControllerBase:
     #         self.latest_charger_start = 1
     #     return ret
 
-    # def _check_charger_states(self, input:dict[CHARGERSTATES,list[str]]) -> dict[CHARGERSTATES,list[str]]:
-    #     if len(input) == 0:
-    #         raise AssertionError
-    #     for i in input:
-    #         if len(input[i]) == 0:
-    #             raise AssertionError
-    #     return input
+    def _check_charger_states(self, input:dict[CHARGERSTATES,list[str]]) -> dict[CHARGERSTATES,list[str]]:
+        if len(input) == 0:
+            raise AssertionError
+        for i in input:
+            if len(input[i]) == 0:
+                raise AssertionError
+        return input

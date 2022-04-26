@@ -1,13 +1,13 @@
-# from enum import IntFlag
+from enum import Enum
 
-# class CHARGERSTATES(IntFlag):
-#     Idle = 0
-#     Connected = 1
-#     Start = 2
-#     Stop = 3
-#     Done = 4
-#     Error = 5
-#     Charging = 6
+class CHARGERSTATES(Enum):
+    Idle = 0
+    Connected = 1
+    Start = 2
+    Stop = 3
+    Done = 4
+    Error = 5
+    Charging = 6
 
 
 CURRENTS_ONEPHASE_1_16 = {3600: 16, 3150: 14, 2700: 12, 2250: 10, 1800: 8, 1350: 6}

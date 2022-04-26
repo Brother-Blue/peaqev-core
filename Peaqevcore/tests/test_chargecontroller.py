@@ -67,9 +67,13 @@ _NONHOURSMOCK = [5,6,7]
 
 #     assert c._is_timeout == False
 
-
 def test_start_threshold_should_start():
-    ret = ChargeControllerBase.below_start_threshold(
+    c = ChargeControllerBase(
+        charger_state_translation=_CHARGERSTATESMOCK,
+        non_hours=_NONHOURSMOCK
+    )
+
+    ret = c.below_start_threshold(
         predicted_energy=0.2,
         current_peak=1,
         threshold_start=0.6
@@ -77,7 +81,12 @@ def test_start_threshold_should_start():
     assert ret is True
 
 def test_start_threshold_should_not_start():
-    ret = ChargeControllerBase.below_start_threshold(
+    c = ChargeControllerBase(
+        charger_state_translation=_CHARGERSTATESMOCK,
+        non_hours=_NONHOURSMOCK
+    )
+    
+    ret = c.below_start_threshold(
         predicted_energy=0.8,
         current_peak=1,
         threshold_start=0.6
@@ -85,7 +94,12 @@ def test_start_threshold_should_not_start():
     assert ret is False
 
 def test_stop_threshold_should_stop():
-    ret = ChargeControllerBase.above_stop_threshold(
+    c = ChargeControllerBase(
+            charger_state_translation=_CHARGERSTATESMOCK,
+            non_hours=_NONHOURSMOCK
+        )
+
+    ret = c.above_stop_threshold(
         predicted_energy=0.8,
         current_peak=1,
         threshold_stop=0.6
