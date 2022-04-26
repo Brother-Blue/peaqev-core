@@ -10,28 +10,28 @@ def test_mockprices1_non_hours():
     r.prices = MOCKPRICES1
     r.update()
 
-    assert r.non_hours == [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+    assert r.non_hours == [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 
 def test_mockprices1_caution_hours():
     r = h()
     r.prices = MOCKPRICES1
     r.update()
         
-    assert r.caution_hours == [6,23]
+    assert r.caution_hours == [6, 22, 23]
 
 def test_mockprices2_non_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
 
-    assert r.non_hours == [9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23]
+    assert r.non_hours == [17, 18, 19, 20, 21, 22]
 
 def test_mockprices2_caution_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
         
-    assert r.caution_hours == []
+    assert r.caution_hours == [9, 10, 11, 16, 23]
 
 def test_mockprices3_non_hours():
     r = h()
