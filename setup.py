@@ -6,5 +6,5 @@ setuptools.setup(
     author="Magnus Eldén",
     description="Core types for peaqev car charging",
     packages=["peaqevcore"],
-    install_requires=['pytest', 'time', 'datetime', 'enum'],
+    install_requires=['pytest', 'time', 'datetime', 'enum', 'statistics'],
 )   
