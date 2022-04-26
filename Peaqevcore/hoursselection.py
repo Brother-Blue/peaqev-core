@@ -6,7 +6,7 @@ from .Models import (
     CAUTIONHOURTYPE
 )
 
-class PriceAwareHoursBase:
+class Hoursselectionbase:
     def __init__(
             self,      
             absolute_top_price: float = None,
