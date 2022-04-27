@@ -1,4 +1,5 @@
 import statistics as stat
+from datetime import datetime
 from .Models import (
     CAUTIONHOURTYPE_AGGRESSIVE,
     CAUTIONHOURTYPE
@@ -11,11 +12,16 @@ class Hoursselectionbase:
             cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE]
     ):
         self._prices = []
+        self._prices_tomorrow = []
         self._non_hours = []
         self._caution_hours = []
         self._absolute_top_price = absolute_top_price if absolute_top_price is not None else float("inf")
         self._cautionhour_type = cautionhour_type
+        self._validate()
         self.update()
+
+    def _validate(self):
+        assert 0 < self._cautionhour_type <= 1
 
     @property
     def non_hours(self):
@@ -41,6 +47,14 @@ class Hoursselectionbase:
     def prices(self, val):
         self._prices = val
         self.update()
+
+    @property
+    def prices_tomorrow(self):
+        return self._prices_tomorrow
+
+    @prices_tomorrow.setter
+    def prices_tomorrow(self, val):
+        self._prices_tomorrow = self._make_array_from_empty(val)
 
     def update(self):
         if len(self.prices) > 1:
@@ -95,3 +109,28 @@ class Hoursselectionbase:
 
         self.non_hours = _nh
         self.caution_hours = _ch
+    
+    def _make_array_from_empty(input) -> list:
+        array = input.split(",")
+        list = [p for p in array if len(p) > 0]
+        ret = []
+        if len(list) > 0:
+            try:
+                for l in list:
+                    parsed_item = Hoursselectionbase._try_parse(l, float)
+                    if not parsed_item:
+                        parsed_item = Hoursselectionbase._try_parse(l, int)
+                    assert type(parsed_item) is float or type(parsed_item) is int
+                    ret.append(parsed_item)
+                return ret
+            except:
+                return []
+        return []
+
+    @staticmethod
+    def _try_parse(input:str, parsetype:type):
+        try:
+            ret = parsetype(input)
+            return ret
+        except:
+            return False

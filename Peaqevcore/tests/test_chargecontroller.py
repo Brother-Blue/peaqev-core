@@ -98,7 +98,6 @@ def test_stop_threshold_should_stop():
             charger_state_translation=_CHARGERSTATESMOCK,
             non_hours=_NONHOURSMOCK
         )
-
     ret = c.above_stop_threshold(
         predicted_energy=0.8,
         current_peak=1,
@@ -116,6 +115,19 @@ def test_stop_threshold_should_not_stop():
         predicted_energy=0.2,
         current_peak=1,
         threshold_stop=0.6
+    )
+    assert ret is False
+
+def test_stop_threshold_should_not_stop():
+    c = ChargeControllerBase(
+        charger_state_translation=_CHARGERSTATESMOCK,
+        non_hours=_NONHOURSMOCK
+    )
+    
+    ret = c.above_stop_threshold(
+        predicted_energy=2,
+        current_peak=1.98,
+        threshold_stop=60
     )
     assert ret is False
 

@@ -1,5 +1,6 @@
 import pytest
 from ..hoursselection import Hoursselectionbase as h
+from ..Models import (CAUTIONHOURTYPE_AGGRESSIVE, CAUTIONHOURTYPE_INTERMEDIATE, CAUTIONHOURTYPE_SUAVE, CAUTIONHOURTYPE)
 
 MOCKPRICES1 =[0.129, 0.123, 0.077, 0.064, 0.149, 0.172, 1, 2.572, 2.688, 2.677, 2.648, 2.571, 2.561, 2.07, 2.083, 2.459, 2.508, 2.589, 2.647, 2.648, 2.603, 2.588, 1.424, 0.595]
 MOCKPRICES2 =[0.392, 0.408, 0.418, 0.434, 0.408, 0.421, 0.45, 0.843, 0.904, 1.013, 0.939, 0.915, 0.703, 0.445, 0.439, 0.566, 0.913, 1.4, 2.068, 2.182, 1.541, 2.102, 1.625, 1.063]
@@ -11,25 +12,79 @@ def test_mockprices1_non_hours():
     r = h()
     r.prices = MOCKPRICES1
     r.update()
-    assert r.non_hours == [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    assert r.non_hours == [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 def test_mockprices1_caution_hours():
     r = h()
     r.prices = MOCKPRICES1
     r.update()
-    assert r.caution_hours == [6, 22, 23]
+    assert r.caution_hours == []
 
+def test_mockprices1_caution_hours_aggressive():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
+    r.prices = MOCKPRICES1
+    r.update()
+    assert r.caution_hours == []
+
+def test_mockprices1_caution_hours_per_type():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
+    r.prices = MOCKPRICES1
+    r.update()
+    r2 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_INTERMEDIATE])
+    r2.prices = MOCKPRICES1
+    r2.update()
+    r3 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r3.prices = MOCKPRICES1
+    r3.update()
+
+    assert len(r.caution_hours) < len(r2.caution_hours)
+    assert len(r2.caution_hours) < len(r3.caution_hours)
+    assert len(r.non_hours) > len(r2.non_hours)
+    assert len(r2.non_hours) > len(r3.non_hours)
+    
+def test_mockprices2_caution_hours_per_type():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
+    r.prices = MOCKPRICES2
+    r.update()
+    r2 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_INTERMEDIATE])
+    r2.prices = MOCKPRICES2
+    r2.update()
+    r3 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r3.prices = MOCKPRICES2
+    r3.update()
+
+    assert len(r.caution_hours) < len(r2.caution_hours)
+    assert len(r2.caution_hours) == len(r3.caution_hours)
+    assert len(r.non_hours) > len(r2.non_hours)
+    assert len(r2.non_hours) == len(r3.non_hours)
+
+def test_mockprices3_caution_hours_per_type():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
+    r.prices = MOCKPRICES3
+    r.update()
+    r2 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_INTERMEDIATE])
+    r2.prices = MOCKPRICES3
+    r2.update()
+    r3 = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r3.prices = MOCKPRICES3
+    r3.update()
+
+    assert len(r.caution_hours) == len(r2.caution_hours)
+    assert len(r2.caution_hours) == len(r3.caution_hours)
+    assert len(r.non_hours) == len(r2.non_hours)
+    assert len(r2.non_hours) == len(r3.non_hours)
+    
 def test_mockprices2_non_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
-    assert r.non_hours == [17, 18, 19, 20, 21, 22]
+    assert r.non_hours == [9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23]
 
 def test_mockprices2_caution_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
-    assert r.caution_hours == [9, 10, 11, 16, 23]
+    assert r.caution_hours == []
 
 def test_mockprices3_non_hours():
     r = h()
@@ -42,6 +97,18 @@ def test_mockprices3_caution_hours():
     r.prices = MOCKPRICES3
     r.update()
     assert r.caution_hours == []
+
+def test_cautionhour_over_max_error():
+    with pytest.raises(AssertionError):
+        h(cautionhour_type=2)
+    
+def test_cautionhour_zero_error():
+    with pytest.raises(AssertionError):
+        h(cautionhour_type=0)
+
+def test_cautionhour_negative_error():
+    with pytest.raises(AssertionError):
+        h(cautionhour_type=-1)
 
 def test_create_dict():
     r = h()
