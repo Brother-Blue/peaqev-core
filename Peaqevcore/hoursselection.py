@@ -1,7 +1,5 @@
 import statistics as stat
 from .Models import (
-    CAUTIONHOURTYPE_SUAVE,
-    CAUTIONHOURTYPE_INTERMEDIATE,
     CAUTIONHOURTYPE_AGGRESSIVE,
     CAUTIONHOURTYPE
 )
@@ -78,6 +76,10 @@ class Hoursselectionbase:
         ret = {}
         for idx, val in enumerate(input):
             ret[idx] = val
+        try:
+            assert len(ret) == 24
+        except Exception:
+            raise ValueError
         return ret
 
     def _determine_hours(self, price_list: dict):
