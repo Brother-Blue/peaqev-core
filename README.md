@@ -3,3 +3,5 @@
 Core classes for Peaqev car charging.
 
 https://pypi.org/project/peaqevcore/
+
+Used in: https://github.com/elden1337/hass-peaq
