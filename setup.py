@@ -5,6 +5,7 @@ setuptools.setup(
     version="0.0.16",
     author="Magnus Eldén",
     description="Core types for peaqev car charging",
+    license="MIT",
     packages=["peaqevcore"],
-    install_requires=['pytest', 'statistics'],
+    install_requires=['pytest']
 )   
