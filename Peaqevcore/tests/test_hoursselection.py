@@ -7,18 +7,22 @@ MOCKPRICES2 =[0.392, 0.408, 0.418, 0.434, 0.408, 0.421, 0.45, 0.843, 0.904, 1.01
 MOCKPRICES3 = [0.243, 0.282, 0.279, 0.303, 0.299, 0.314, 0.304, 0.377, 0.482, 0.484, 0.482, 0.268, 0.171, 0.174, 0.171, 0.277, 0.52, 0.487, 0.51, 0.487, 0.451, 0.397, 0.331, 0.35]
 MOCKPRICES_FLAT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 MOCKPRICES_SHORT = [0.51, 0.487, 0.451, 0.397, 0.331, 0.35]
+PRICES_BLANK = ",,,,,,,,,,,,,,,,,,,,,,,"
+PRICS_ARRAY_WITH_STRING = "6,6,6,6,6,6,6,6,hej,6,6,6,6,6,6"
+PRICES_ARRAYSTR = "6.0,6.0,6.0,6.06,6.0,6.0,6.6,6,6,6,6,6,6,6"
+
 
 def test_mockprices1_non_hours():
     r = h()
     r.prices = MOCKPRICES1
     r.update()
-    assert r.non_hours == [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    assert r.non_hours == []
 
 def test_mockprices1_caution_hours():
     r = h()
     r.prices = MOCKPRICES1
     r.update()
-    assert r.caution_hours == []
+    assert r.caution_hours == [22,23]
 
 def test_mockprices1_caution_hours_aggressive():
     r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
@@ -78,19 +82,19 @@ def test_mockprices2_non_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
-    assert r.non_hours == [9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23]
+    assert r.non_hours == [22]
 
 def test_mockprices2_caution_hours():
     r = h()
     r.prices = MOCKPRICES2
     r.update()
-    assert r.caution_hours == []
+    assert r.caution_hours == [23]
 
 def test_mockprices3_non_hours():
     r = h()
     r.prices = MOCKPRICES3
     r.update()
-    assert r.non_hours == [8, 9, 10, 16, 17, 18,19]
+    assert r.non_hours == []
 
 def test_mockprices3_caution_hours():
     r = h()
