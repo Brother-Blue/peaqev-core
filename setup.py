@@ -7,5 +7,5 @@ setuptools.setup(
     description="Core types for peaqev car charging",
     license="MIT",
     packages=["peaqevcore"],
-    install_requires=['pytest', 'datetime', 'statistics'],
+    install_requires=['pytest', 'datetime']
 )   
