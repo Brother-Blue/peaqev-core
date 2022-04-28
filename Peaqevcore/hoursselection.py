@@ -126,7 +126,7 @@ class Hoursselectionbase:
             if h not in readyhours.nh:
                 readyhours.nh.append(h)
                 if h in readyhours.ch:
-                    del readyhours.ch[h]
+                    readyhours.ch.remove(h)
         readyhours.nh.sort()
         return readyhours
 
@@ -163,8 +163,15 @@ class Hoursselectionbase:
     
     def _check_tomorrow_prices(self, input) -> list:
         if type(input) is list:
-            return input
+            return self._convert_none_list(input)
         return self._make_array_from_empty(input)
+
+    def _convert_none_list(self, lst:list):
+        ret = []
+        for l in lst:
+            if l is None:
+                return ret
+        return lst
 
     def _make_array_from_empty(self, input) -> list:
         array = input.split(",")
@@ -190,5 +197,3 @@ class Hoursselectionbase:
             return ret
         except:
             return False
-
-
