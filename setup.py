@@ -8,5 +8,5 @@ setuptools.setup(
     url="https://github.com/elden1337/peaqev-core",
     license="MIT",
     packages=["peaqevcore"],
-    install_requires=['pytest']
+    test_requires=['pytest']
 )   
