@@ -34,7 +34,6 @@ class Hoursselectionbase:
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
         self._cautionhour_type = cautionhour_type
         self._validate()
-        self.update()
     
     def _set_absolute_top_price(self, val) -> float:
         if val is None:
