@@ -8,9 +8,10 @@ from .Models import (
 )
 
 class HourObject:
-    def __init__(self, nh:list, ch:list) -> None:    
+    def __init__(self, nh:list, ch:list, dyn_ch:dict = {}) -> None:    
         self._nh = nh
         self._ch = ch
+        self._dyn_ch = dyn_ch
 
     @property
     def nh(self) -> list:
@@ -19,6 +20,10 @@ class HourObject:
     @property
     def ch(self) -> list:
         return self._ch
+
+    @property
+    def dyn_ch(self) -> dict:
+        return self._dyn_ch
 
 
 class Hoursselectionbase:
@@ -31,6 +36,7 @@ class Hoursselectionbase:
         self._prices_tomorrow = None
         self._non_hours = []
         self._caution_hours = []
+        self._dynamic_caution_hours = {}
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
         self._cautionhour_type = cautionhour_type
         self._validate()
@@ -40,7 +46,7 @@ class Hoursselectionbase:
             return float("inf")
         if val <= 0:
             return float("inf")
-        return val
+        return float(val)
 
     def _validate(self):
         assert 0 < self._cautionhour_type <= 1
@@ -63,6 +69,14 @@ class Hoursselectionbase:
     @caution_hours.setter
     def caution_hours(self, val):
         self._caution_hours = val
+
+    @property
+    def dynamic_caution_hours(self) -> dict:
+        return self._dynamic_caution_hours
+
+    @dynamic_caution_hours.setter
+    def dynamic_caution_hours(self, val):
+        self._dynamic_caution_hours = val
 
     @property
     def prices(self):
@@ -93,25 +107,23 @@ class Hoursselectionbase:
 
         self.non_hours = []
         self.caution_hours = []
+        self.dynamic_caution_hours = {}
 
-        for h in hours_today.nh:
+        self.non_hours.extend(h for h in hours_today.nh if h >= hour)
+        self.caution_hours.extend(h for h in hours_today.ch if h >= hour)
+        self.non_hours.extend(h for h in hours_tomorrow.nh if h < hour)
+        self.caution_hours.extend(h for h in hours_tomorrow.ch if h < hour)
+
+        for h in hours_today.dyn_ch:
             if h >= hour:
-                self.non_hours.append(h)
+                self._dynamic_caution_hours[h] = hours_today.dyn_ch[h]
 
-        for h in hours_today.ch:
-            if h >= hour:
-                self.caution_hours.append(h)
-
-        for h in hours_tomorrow.nh:
+        for h in hours_tomorrow.dyn_ch:
             if h < hour:
-                self.non_hours.append(h)
-
-        for h in hours_tomorrow.ch:
-            if h < hour:
-                self.caution_hours.append(h)
+                self._dynamic_caution_hours[h] = hours_tomorrow.dyn_ch[h]
 
     def _update_internal(self, prices) -> HourObject:
-        ret = HourObject([], [])
+        ret = HourObject([], [], {})
         if prices is not None and len(prices) > 1:
 
             pricedict = self._create_dict(prices)
@@ -146,6 +158,8 @@ class Hoursselectionbase:
                 readyhours.nh.append(h)
                 if h in readyhours.ch:
                     readyhours.ch.remove(h)
+                if h in readyhours.dyn_ch.keys():
+                    readyhours.dyn_ch.pop(h)
         readyhours.nh.sort()
         return readyhours
 
@@ -171,15 +185,15 @@ class Hoursselectionbase:
 
     def _determine_hours(self, price_list: dict) -> HourObject:
         _nh = []
-        #_ch = {}
+        _dyn_ch = {}
         _ch = []
         for p in price_list:
             if float(price_list[p]["permax"]) <= self._cautionhour_type:
                 _ch.append(p)
-                #_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
+                _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
             else:
                 _nh.append(p)
-        return HourObject(_nh, _ch)
+        return HourObject(_nh, _ch, _dyn_ch)
     
     def _convert_none_list(self, lst:list) -> list:
         try:

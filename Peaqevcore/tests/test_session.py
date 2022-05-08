@@ -114,5 +114,33 @@ def test_session_with_zero_periods_price_update_in_between():
     assert s.total_power == 2.5
     assert s.total_price == 6.5
 
+def test_session_get_status():
+    s = SessionPrice()
+    timer = 1651607299
+    s._set_delta(timer)
+    s.update_price(2, timer)
+    s.update_power_reading(4000, timer)
+    timer += 900
+    status = s.get_status()
+    assert status["price"] == 0
+    s.update_price(3, timer)
+    timer += 900
+    status = s.get_status()
+    assert status["price"] == 2
+    s.update_power_reading(0, timer) 
+    timer += 900
+    status = s.get_status()
+    assert status["price"] == 5
+     #5kr
+    s.update_power_reading(1000, timer)
+    timer += 1800
+    status = s.get_status()
+    assert status["price"] == 5
+    assert status["energy"]["value"] == 2
+    s.terminate(timer)
+
+    assert s.total_power == 2.5
+    assert s.total_price == 6.5
+
 
 

@@ -44,12 +44,21 @@ class SessionPrice:
     def terminate(self, mock_time:float=None):
         print("called terminate")
         self.update_power_reading(0, mock_time)
+        self.get_status()
+        
+    def get_status(self) -> dict:
         self._total_power = 0
         self._total_price = 0
         for i in self._readings:
             self._total_power += i.reading_integral
             self._total_price += i.reading_cost
-        
+        return {
+            "energy": {
+                "value": self._total_power,
+                "unit": "kWh"
+            },
+            "price": self._total_price
+        }
             
     def update_power_reading(self, power:float, mock_time:float=None):
         self._set_delta(mock_time)
