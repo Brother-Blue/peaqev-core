@@ -163,14 +163,17 @@ class Hoursselectionbase:
         readyhours.nh.sort()
         return readyhours
 
-    def _rank_prices(self, hourdict: dict, normalized_hourdict: dict):
+    def _rank_prices(self, hourdict: dict, normalized_hourdict: dict) -> dict:
         ret = {}
         _maxval = max(hourdict.values())
         _max_normalized = max(normalized_hourdict.values())
         peaqstdev = _maxval/abs(_max_normalized/stat.stdev(normalized_hourdict.values()))
+        if peaqstdev < min(hourdict.values()):
+            peaqstdev = peaqstdev + min(hourdict.values())
         for key in hourdict:
             if hourdict[key] > peaqstdev:
-                ret[key] = {"val": hourdict[key], "permax": round(hourdict[key] / _maxval, 2)}
+                _permax = round(hourdict[key] / _maxval, 2)
+                ret[key] = {"val": hourdict[key], "permax": _permax}
         return ret
 
     def _create_dict(self, input: list):
@@ -229,3 +232,4 @@ class Hoursselectionbase:
             return ret
         except:
             return False
+
