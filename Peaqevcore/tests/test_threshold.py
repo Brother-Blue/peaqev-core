@@ -65,3 +65,20 @@ def test_allowed_current_2():
         peak=10
     )
     assert ret == 32
+
+
+def test_start_quarterly():
+    ret = t.start(50, False, True)
+    assert ret == 60.62
+
+def test_start_quarterly_caution():
+    ret = t.start(50, True, True)
+    assert ret == 52.13
+
+def test_stop_quarterly():
+    ret = t.start(22, False, True)
+    assert ret == 65.29
+
+def test_stop_quarterly_caution():
+    ret = t.start(22, True, True)
+    assert ret == 58.06
