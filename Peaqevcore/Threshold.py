@@ -1,4 +1,4 @@
-from peaqevcore.util import _convert_quarterly_minutes
+from .util import _convert_quarterly_minutes
 
 class ThresholdBase:
     BASECURRENT = 6
