@@ -1,3 +1,5 @@
+from asyncio.windows_events import INFINITE
+import collections
 import statistics as stat
 from datetime import datetime
 from .Models import (
@@ -174,7 +176,16 @@ class Hoursselectionbase:
             if hourdict[key] > peaqstdev:
                 _permax = round(hourdict[key] / _maxval, 2)
                 ret[key] = {"val": hourdict[key], "permax": _permax}
-        return ret
+        return self._discard_excessive_hours(ret)
+
+    def _discard_excessive_hours(self, hours: dict):
+        """There should always be at least four regular hours before absolute_top_price kicks in."""
+        if len(hours) < 20:
+            return hours
+        while len(hours) >= 20:
+            to_pop = dict(sorted(hours.items(), key=lambda item: item[1]['val']))    
+            hours.pop(list(to_pop.keys())[0])
+        return hours
 
     def _create_dict(self, input: list):
         ret = {}
@@ -232,4 +243,3 @@ class Hoursselectionbase:
             return ret
         except:
             return False
-
