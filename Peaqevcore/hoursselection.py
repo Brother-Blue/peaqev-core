@@ -1,4 +1,5 @@
 from asyncio.windows_events import INFINITE
+from audioop import avg
 import collections
 import statistics as stat
 from datetime import datetime
@@ -137,7 +138,7 @@ class Hoursselectionbase:
             """
             if stat.stdev(prices) > 0.05:
                 prices_ranked = self._rank_prices(pricedict, normalized_pricedict)
-                ready_hours = self._determine_hours(prices_ranked)
+                ready_hours = self._determine_hours(prices_ranked, prices)
             else:
                 ready_hours = ret
             if self._absolute_top_price is not None:
@@ -197,12 +198,15 @@ class Hoursselectionbase:
             raise ValueError
         return ret
 
-    def _determine_hours(self, price_list: dict) -> HourObject:
+    def _determine_hours(self, price_list: dict, prices: list) -> HourObject:
         _nh = []
         _dyn_ch = {}
         _ch = []
         for p in price_list:
             if float(price_list[p]["permax"]) <= self._cautionhour_type:
+                _ch.append(p)
+                _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
+            elif float(price_list[p]["val"]) <= (sum(prices)/len(prices)):
                 _ch.append(p)
                 _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
             else:
@@ -243,3 +247,4 @@ class Hoursselectionbase:
             return ret
         except:
             return False
+

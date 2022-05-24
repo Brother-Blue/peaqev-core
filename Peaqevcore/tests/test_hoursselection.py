@@ -33,6 +33,7 @@ MOCKPRICES6 = [
 2.489,
 1.314
 ]
+MOCKPRICES7 = [0.475, 1.051, 0.329, 0.396, 0.394, 2.049, 2.145, 3.019, 2.92, 2.534, 2.194, 2.12, 2.073, 1.86, 1.765, 1.578, 1.59, 1.943, 2.07, 2.098, 2.088, 2.041, 1.888, 0.475]
 MOCKPRICES_FLAT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 MOCKPRICES_SHORT = [0.51, 0.487, 0.451, 0.397, 0.331, 0.35]
 PRICES_BLANK = ",,,,,,,,,,,,,,,,,,,,,,,"
@@ -244,8 +245,8 @@ def test_mockprices5_aggressive():
     r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
     r.prices = MOCKPRICES5
     r.update(0)
-    assert r.non_hours == [5,6,7,8,9,10,11,12,13,18,19,20,21]
-    assert r.caution_hours == [14,15,16,17]
+    assert r.non_hours == [6,7,8,9,10,11,12,13]
+    assert r.caution_hours == [5,14,15,16,17,18,19,20,21]
     assert list(r._dynamic_caution_hours.keys()) == r.caution_hours
 
 
@@ -271,8 +272,14 @@ def test_dynamic_cautionhours_no_max_price_aggressive():
     r.prices = MOCKPRICES5
     r.update(0)
     assert list(r._dynamic_caution_hours.keys()) == r.caution_hours
-    assert r.non_hours == [5, 6, 7, 8, 9, 10, 11, 12,13,18,19,20,21]
-    assert r._dynamic_caution_hours == {14: 0.62, 15: 0.68, 16: 0.62, 17: 0.62}
+    assert r.non_hours == [6, 7, 8, 9, 10, 11, 12,13]
+
+def test_prices7():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_AGGRESSIVE])
+    r.prices = MOCKPRICES7
+    r.update(0)
+    assert list(r._dynamic_caution_hours.keys()) == r.caution_hours
+    assert r.non_hours == [5, 6, 7, 8, 9, 10, 11, 12,13,14,17,18,19,20,21,22]
 
 
 def test_dynamic_cautionhours_very_low_peaqstdev():
