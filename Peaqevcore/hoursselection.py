@@ -1,5 +1,3 @@
-from asyncio.windows_events import INFINITE
-from audioop import avg
 import collections
 import statistics as stat
 from datetime import datetime
