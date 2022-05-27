@@ -31,6 +31,7 @@ class Hoursselectionbase:
     def __init__(
             self,      
             absolute_top_price: float = 0,
+            min_price: float = 0,
             cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]
     ):
         self._prices = None
@@ -39,6 +40,7 @@ class Hoursselectionbase:
         self._caution_hours = []
         self._dynamic_caution_hours = {}
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
+        self._min_price = min_price
         self._cautionhour_type = cautionhour_type
         self._validate()
     
@@ -51,7 +53,6 @@ class Hoursselectionbase:
 
     def _validate(self):
         assert 0 < self._cautionhour_type <= 1
-        assert type(self.absolute_top_price) is float
         assert len(self._caution_hours) == 0
         assert len(self._non_hours) == 0
 
@@ -126,7 +127,6 @@ class Hoursselectionbase:
     def _update_internal(self, prices) -> HourObject:
         ret = HourObject([], [], {})
         if prices is not None and len(prices) > 1:
-
             pricedict = self._create_dict(prices)
             normalized_pricedict = self._create_dict(self._normalize_prices(prices))
             
@@ -143,14 +143,26 @@ class Hoursselectionbase:
                 ret = self._add_expensive_non_hours(pricedict, ready_hours)
             else: 
                 ret = ready_hours
+            if self._min_price > 0:
+                ret = self._remove_cheap_hours(pricedict, ret)
         return ret
-
+        
     def _normalize_prices(self, prices) -> list:
         min_price = min(prices)
         ret = []
         for p in prices:
             ret.append(p/min_price)
         return ret
+
+    def _remove_cheap_hours(self, hourdict: dict, hours: HourObject) -> HourObject:
+        lst = (h for h in hourdict if hourdict[h] < self._min_price)
+        for h in lst:
+            if h in hours.nh:
+                hours.nh.remove(h)
+            elif h in hours.ch:
+                hours.ch.remove(h)
+                hours.dyn_ch.pop(h)    
+        return hours
 
     def _add_expensive_non_hours(self, hourdict: dict, readyhours:HourObject) -> HourObject:
         lst = (h for h in hourdict if hourdict[h] >= self._absolute_top_price)
@@ -201,12 +213,17 @@ class Hoursselectionbase:
         _dyn_ch = {}
         _ch = []
         for p in price_list:
+            _permax = round(abs(price_list[p]["permax"] - 1), 2)
+            if self._cautionhour_type == CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]:
+                _permax += 0.15
+            elif self._cautionhour_type == CAUTIONHOURTYPE[CAUTIONHOURTYPE_INTERMEDIATE]:
+                _permax += 0.05
             if float(price_list[p]["permax"]) <= self._cautionhour_type:
                 _ch.append(p)
-                _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
+                _dyn_ch[p] = round(_permax,2)
             elif float(price_list[p]["val"]) <= (sum(prices)/len(prices)):
                 _ch.append(p)
-                _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
+                _dyn_ch[p] = round(_permax,2)
             else:
                 _nh.append(p)
         return HourObject(_nh, _ch, _dyn_ch)
@@ -245,4 +262,3 @@ class Hoursselectionbase:
             return ret
         except:
             return False
-
