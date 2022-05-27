@@ -8,6 +8,7 @@ from .Models import (
     CAUTIONHOURTYPE
 )
 
+
 class HourObject:
     def __init__(self, nh:list, ch:list, dyn_ch:dict = {}) -> None:    
         self._nh = nh
@@ -101,6 +102,10 @@ class Hoursselectionbase:
     @property
     def absolute_top_price(self) -> float:
         return self._absolute_top_price
+
+    @property
+    def min_price(self) -> float:
+        return self._min_price
 
     def update(self, testhour:int = None):
         hours_today = self._update_internal(self.prices)
