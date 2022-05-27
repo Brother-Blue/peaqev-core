@@ -256,7 +256,7 @@ def test_dynamic_cautionhours_no_max_price_suave():
     r.update(0)
     assert list(r._dynamic_caution_hours.keys()) == r.caution_hours
     assert r.non_hours == [7, 8, 9, 10]
-    assert r._dynamic_caution_hours == {5: 0.59, 6: 0.25, 11: 0.28, 12: 0.3, 13: 0.54, 14: 0.62, 15: 0.68, 16: 0.62, 17: 0.62, 18: 0.56, 19: 0.57, 20: 0.59, 21: 0.56}
+    assert r._dynamic_caution_hours == {5: 0.74, 6: 0.4, 11: 0.43, 12: 0.45, 13: 0.69, 14: 0.77, 15: 0.83, 16: 0.77, 17: 0.77, 18: 0.71, 19: 0.72, 20: 0.74, 21: 0.71}
 
 def test_dynamic_cautionhours_with_max_price_suave():
     r = h(absolute_top_price=2, cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
@@ -264,7 +264,7 @@ def test_dynamic_cautionhours_with_max_price_suave():
     r.update(0)
     assert list(r._dynamic_caution_hours.keys()) == r.caution_hours
     assert r.non_hours == [6, 7, 8, 9, 10,11,12]
-    assert r._dynamic_caution_hours == {5: 0.59, 13: 0.54, 14: 0.62, 15: 0.68, 16: 0.62, 17: 0.62, 18: 0.56, 19: 0.57, 20: 0.59, 21: 0.56}
+    assert r._dynamic_caution_hours == {5: 0.74, 13: 0.69, 14: 0.77, 15: 0.83, 16: 0.77, 17: 0.77, 18: 0.71, 19: 0.72, 20: 0.74, 21: 0.71}
 
 
 def test_dynamic_cautionhours_no_max_price_aggressive():
