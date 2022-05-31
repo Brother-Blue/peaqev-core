@@ -290,4 +290,18 @@ def test_dynamic_cautionhours_very_low_peaqstdev():
     assert len(r.non_hours) + len(r._dynamic_caution_hours) < 24
     
 
+def test_total_charge_just_today():
+    MOCKHOUR = 18
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r.prices = MOCKPRICES1
+    r.prices_tomorrow = MOCKPRICES2
+    r.update(MOCKHOUR)
+    assert r.get_total_charge(2, MOCKHOUR) == 34.7
+
+def test_total_charge_today_tomorrow():
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    MOCKHOUR = 0
+    r.prices = MOCKPRICES1
+    r.update(MOCKHOUR)
+    assert r.get_total_charge(2, MOCKHOUR) == 17.2
 

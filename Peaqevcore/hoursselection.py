@@ -260,6 +260,56 @@ class Hoursselectionbase:
                 return []
         return []
 
+    def get_average_kwh_price(self, testhour:int = None):
+        if len(self._prices) > 0:
+            hour = datetime.now().hour if testhour is None else testhour
+            ret = {}
+
+            for h in self._dynamic_caution_hours:
+                if len(self._prices_tomorrow) > 0:
+                    if h < hour and len(self._prices_tomorrow) > 0:
+                        ret[h] = self._dynamic_caution_hours[h] * self._prices_tomorrow[h]
+                if h >= hour:
+                    ret[h] = self._dynamic_caution_hours[h] * self._prices[h]
+
+            for nh in self._non_hours:
+                ret[nh] = 0
+
+            for i in range(hour,24):
+                if i not in ret.keys():
+                    if len(self._prices_tomorrow) > 0:
+                        if i < hour and len(self._prices_tomorrow) > 0:
+                            ret[i] = self._prices_tomorrow[i]
+                    if i >= hour:
+                        ret[i] = self._prices[i]
+
+            return round(sum(ret.values())/len(ret),2)
+        return "-"
+
+    def get_total_charge(self, currentpeak:float, testhour:int = None) -> float:
+        hour = datetime.now().hour if testhour is None else testhour
+        ret = {}
+
+        if self.prices_tomorrow is None:
+            for h in range(hour,24):
+                if h in self._dynamic_caution_hours:
+                    ret[h] = self._dynamic_caution_hours[h] * currentpeak
+                elif h in self._non_hours:
+                    ret[h] = 0
+                else:
+                    ret[h] = currentpeak
+        else:
+            for h in range(hour,(hour+24)):
+                h = h-24 if h > 23 else h
+                if h in self._dynamic_caution_hours:
+                    ret[h] = self._dynamic_caution_hours[h] * currentpeak
+                elif h in self._non_hours:
+                    ret[h] = 0
+                else:
+                    ret[h] = currentpeak
+            
+        return round(sum(ret.values()),1)
+
     @staticmethod
     def _try_parse(input:str, parsetype:type):
         try:
@@ -267,3 +317,6 @@ class Hoursselectionbase:
             return ret
         except:
             return False
+
+
+
