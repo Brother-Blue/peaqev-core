@@ -1,14 +1,11 @@
-from custom_components.peaqev.peaqservice.localetypes.localtypebase import LocaleTypeBase
 from custom_components.peaqev.peaqservice.util.constants import (
     QUERYTYPE_BASICMAX
 )
+from dataclasses import dataclass
+from ..locale_model import Locale_Type
 
-
+@dataclass(frozen=True)
 class SE_Partille(Locale_Type):
-    def __init__(self):
-        observed_peak = QUERYTYPE_BASICMAX
-        charged_peak = QUERYTYPE_BASICMAX
-        super().__init__(
-            observedpeak=observed_peak,
-            chargedpeak=charged_peak
-        )
+    observed_peak = QUERYTYPE_BASICMAX
+    charged_peak = QUERYTYPE_BASICMAX
+        

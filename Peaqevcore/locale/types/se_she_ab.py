@@ -1,27 +1,23 @@
-from custom_components.peaqev.peaqservice.localetypes.localtypebase import LocaleTypeBase
 from custom_components.peaqev.peaqservice.util.constants import (
     QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19,
     QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN
 )
+from dataclasses import dataclass
+from ..locale_model import Locale_Type
 
-
+@dataclass(frozen=True)
 class SE_SHE_AB(Locale_Type):
-    def __init__(self):
-        observed_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN
-        charged_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19
-        free_charge_pattern = [
-            {
-                "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                "D": [5, 6],
-                "H": [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6]
-            }
-        ]
-        super().__init__(
-            observedpeak=observed_peak,
-            chargedpeak=charged_peak,
-            freechargepattern=free_charge_pattern
-        )
-
+    
+    observed_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN
+    charged_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19
+    free_charge_pattern = [
+        {
+            "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            "D": [5, 6],
+            "H": [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6]
+        }
+    ]
+     
 """
 Elnätskunder med effekttaxa får vinterpris på överföringsavgift från och med 1 november – 31 mars. 
 Prishöjningen på effekttaxan skedde 1 april men blir mer kännbart när vinterpriset nu träder i kraft. 

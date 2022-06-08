@@ -1,17 +1,15 @@
-from custom_components.peaqev.peaqservice.localetypes.localtypebase import LocaleTypeBase
+
 from custom_components.peaqev.peaqservice.util.constants import (
     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
 )
+from ..locale_model import Locale_Type
+from dataclasses import dataclass
 
-
+@dataclass(frozen=True)
 class SE_Kristinehamn(Locale_Type):
-    def __init__(self):
-        observed_peak = QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
-        charged_peak = QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
-        super().__init__(
-            observedpeak=observed_peak,
-            chargedpeak=charged_peak
-        )
+    observed_peak = QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
+    charged_peak = QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
+        
 
 
 

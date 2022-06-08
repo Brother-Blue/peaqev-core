@@ -1,19 +1,14 @@
-
-from custom_components.peaqev.peaqservice.localetypes.localtypebase import LocaleTypeBase
 from custom_components.peaqev.peaqservice.util.constants import (
     QUERYTYPE_BASICMAX
 )
+from ..locale_model import Locale_Type
+from dataclasses import dataclass
 
-
+@dataclass(frozen=True)
 class SE_Linde_Energi(Locale_Type):
-    def __init__(self):
-        observed_peak = QUERYTYPE_BASICMAX
-        charged_peak = QUERYTYPE_BASICMAX
-        super().__init__(
-            observedpeak=observed_peak,
-            chargedpeak=charged_peak
-        )
-
+    observed_peak = QUERYTYPE_BASICMAX
+    charged_peak = QUERYTYPE_BASICMAX
+        
 #docs: https://www.lindeenergi.se/elnat/elnatspriser/effekttariffer.4.1491a0b016e44ba6ccfe91b4.html
 
 """
