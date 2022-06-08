@@ -1,4 +1,4 @@
-from custom_components.peaqev.peaqservice.util.constants import (
+from ..constants import (
     QUERYTYPE_BASICMAX
 )
 
