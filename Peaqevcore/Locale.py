@@ -1,7 +1,7 @@
-from locale_service.types.default import Default
-from locale_service.types.belgium import VregBelgium
-from locale_service.types.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Karlstad, SE_Kristinehamn, SE_Linde_Energi, SE_Malung_Salen, SE_Nacka_normal, SE_NACKA_timediff, SE_Partille, SE_SHE_AB, SE_Skovde, SE_Sollentuna
-from locale_service.types.norway import NO_AgderEnergi, NO_GlitreEnergi, NO_LNett, NO_Tensio
+from .default import Default
+from .belgium import VregBelgium
+from .sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Karlstad, SE_Kristinehamn, SE_Linde_Energi, SE_Malung_Salen, SE_Nacka_normal, SE_NACKA_timediff, SE_Partille, SE_SHE_AB, SE_Skovde, SE_Sollentuna
+from .norway import NO_AgderEnergi, NO_GlitreEnergi, NO_LNett, NO_Tensio
 
 """LOCALETYPES"""
 LOCALE_SE_GOTHENBURG = "Gothenburg, Sweden"

@@ -15,5 +15,5 @@ QUERYTYPE_SOLLENTUNA = "sollentuna"
 QUERYTYPE_SOLLENTUNA_MIN = "sollentuna_min"
 
 """Misc"""
-QUARTER_HOURLY = "Quarter hourly"
-HOURLY = "Hourly"
+QUARTER_HOURLY = "quarter-hourly"
+HOURLY = "hourly"

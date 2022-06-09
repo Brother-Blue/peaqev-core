@@ -1,6 +1,6 @@
 from datetime import datetime, date, time
 import pytest
-from ..locale_service.types.sweden import SE_Bjerke_Energi
+from ..sweden import SE_Bjerke_Energi
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi
