@@ -1,4 +1,4 @@
-from ..constants import (
+from ..querytypes import (
     QUERYTYPE_AVERAGEOFFIVEDAYS, 
     QUERYTYPE_AVERAGEOFFIVEDAYS_MIN, 
     QUERYTYPE_AVERAGEOFTHREEDAYS, 

@@ -1,3 +1,8 @@
+from locale_service.types.default import Default
+from locale_service.types.belgium import VregBelgium
+from locale_service.types.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Karlstad, SE_Kristinehamn, SE_Linde_Energi, SE_Malung_Salen, SE_Nacka_normal, SE_NACKA_timediff, SE_Partille, SE_SHE_AB, SE_Skovde, SE_Sollentuna
+from locale_service.types.norway import NO_AgderEnergi, NO_GlitreEnergi, NO_LNett, NO_Tensio
+
 """LOCALETYPES"""
 LOCALE_SE_GOTHENBURG = "Gothenburg, Sweden"
 LOCALE_SE_KARLSTAD = "Karlstad, Sweden"
@@ -17,6 +22,26 @@ LOCALE_NO_AGDER_ENERGI = "Agder Energi, Norway"
 LOCALE_NO_LNETT = "LNett, Norway"
 LOCALE_NO_TENSIO = "Tensio, Norway"
 LOCALE_SE_LINDE_ENERGI = "Linde Energi, Sweden"
+
+LOCALETYPEDICT = {
+    LOCALE_DEFAULT: Default,
+    LOCALE_SE_GOTHENBURG: SE_Gothenburg,
+    LOCALE_SE_PARTILLE: SE_Partille,
+    LOCALE_SE_KARLSTAD: SE_Karlstad,
+    LOCALE_SE_KRISTINEHAMN: SE_Kristinehamn,
+    LOCALE_SE_NACKA_NORMAL: SE_Nacka_normal,
+    LOCALE_SE_MALUNG_SALEN: SE_Malung_Salen,
+    LOCALE_SE_SALA: SE_SHE_AB,
+    LOCALE_SE_SKOVDE: SE_Skovde,
+    LOCALE_SE_SOLLENTUNA: SE_Sollentuna,
+    LOCALE_BE_VREG: VregBelgium,
+    LOCALE_SE_BJERKE_ENERGI: SE_Bjerke_Energi,
+    LOCALE_NO_GLITRE_ENERGI: NO_GlitreEnergi,
+    LOCALE_NO_AGDER_ENERGI: NO_AgderEnergi,
+    LOCALE_NO_LNETT: NO_LNett,
+    LOCALE_NO_TENSIO: NO_Tensio,
+    LOCALE_SE_LINDE_ENERGI: SE_Linde_Energi
+}
 
 """Lookup locales for config flow"""
 LOCALES = [
@@ -39,22 +64,5 @@ LOCALES = [
     LOCALE_DEFAULT
     ]
 
-"""Peak querytypes"""
-QUERYTYPE_BASICMAX = "BasicMax"
-QUERYTYPE_AVERAGEOFTHREEDAYS = "AverageOfThreeDays"
-QUERYTYPE_AVERAGEOFTHREEHOURS = "AverageOfThreeHours"
-QUERYTYPE_AVERAGEOFTHREEDAYS_MIN = "AverageOfThreeDays_Min"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MIN = "AverageOfThreeHours_Min"
-QUERYTYPE_AVERAGEOFFIVEDAYS = "AverageOfFiveDays"
-QUERYTYPE_AVERAGEOFFIVEDAYS_MIN = "AverageOfFiveDays_Min"
-QUERYTYPE_HIGHLOAD = "HighLoad"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19 = "sala"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN = "sala"
-QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22 = "skövde"
-QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR = "kristinehamn"
-QUERYTYPE_SOLLENTUNA = "sollentuna"
-QUERYTYPE_SOLLENTUNA_MIN = "sollentuna_min"
-
-"""Misc"""
-QUARTER_HOURLY = "Quarter hourly"
-HOURLY = "Hourly"
+class LocaleBase:
+    pass

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from datetime import datetime, date, time
+from datetime import datetime
 from typing import List
 
-from .constants import (
-HOURLY
+from .querytypes import (
+HOURLY,
+QUARTER_HOURLY
 )
 
 @dataclass(frozen=True)
@@ -11,9 +12,9 @@ class Locale_Type:
     observed_peak:str
     charged_peak:str
     free_charge_pattern:List = None
-    peakcycle:str = HOURLY
+    peak_cycle:str = HOURLY
 
-    def is_free_charge(self, mockdt:datetime = datetime.min) -> bool:
+    def free_charge(self, mockdt:datetime = datetime.min) -> bool:
         if self.free_charge_pattern is None or len(self.free_charge_pattern) == 0:
             return False
         now = datetime.now() if mockdt is datetime.min else mockdt
@@ -23,5 +24,8 @@ class Locale_Type:
                     if now.hour in p["H"]:
                         return True
         return False
+
+    def is_quarterly(self) -> bool:
+        return self.peak_cycle == QUARTER_HOURLY
 
 
