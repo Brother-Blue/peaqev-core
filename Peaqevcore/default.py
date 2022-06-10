@@ -9,3 +9,4 @@ from dataclasses import dataclass
 class Default(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
+    converted = True

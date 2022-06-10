@@ -87,12 +87,13 @@ class SE_SHE_AB(Locale_Type):
 class SE_Partille(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
-
+    converted = True
 
 @dataclass(frozen=True)
 class SE_Nacka_normal(Locale_Type):
     observed_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MIN
     charged_peak = QUERYTYPE_AVERAGEOFTHREEHOURS
+    converted = True
 
     #https://www.nackaenergi.se/images/downloads/natavgifter/FAQ_NYA_TARIFFER.pdf
 
@@ -125,7 +126,7 @@ class SE_Malung_Salen(Locale_Type):
 class SE_Linde_Energi(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
-        
+    converted = True
     #docs: https://www.lindeenergi.se/elnat/elnatspriser/effekttariffer.4.1491a0b016e44ba6ccfe91b4.html
 
     """
@@ -150,7 +151,7 @@ class SE_Kristinehamn(Locale_Type):
 class SE_Karlstad(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX #todo check if correct
     charged_peak = QUERYTYPE_BASICMAX #todo check if correct
-
+    converted = True
     #docs: https://karlstadsnat.se/elnat/kund/priser-och-tariffer/effekttariff/        
     """
     Note, high load extra is added on weekdays from 6-18 during november - march. 
@@ -162,7 +163,7 @@ class SE_Karlstad(Locale_Type):
 class SE_Gothenburg(Locale_Type):
     observed_peak = QUERYTYPE_AVERAGEOFTHREEDAYS_MIN
     charged_peak = QUERYTYPE_AVERAGEOFTHREEDAYS
-
+    converted = True
 
 @dataclass(frozen=True)
 class SE_Bjerke_Energi(Locale_Type):
