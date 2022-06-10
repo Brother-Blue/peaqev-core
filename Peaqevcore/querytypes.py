@@ -56,6 +56,10 @@ class PeaksModel:
     p: dict
     m:int = 0
 
+    def set_init_dict(self, dict_data):
+        self.p = dict_data["p"]
+        self.m = dict_data["m"]
+
 class LocaleQuery:
     def __init__(
         self, 

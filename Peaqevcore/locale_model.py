@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
@@ -13,14 +13,10 @@ LocaleQuery
 class Locale_Type:
     observed_peak:str
     charged_peak:str
-    query_model: LocaleQuery = None
+    query_model: LocaleQuery
     free_charge_pattern:List = None
     peak_cycle:str = HOURLY
     converted:bool = False #transition key to remove sql-dependency
-
-    def __post_init__(self):
-        if self.converted:
-            self.query_model = QUERYTYPES[self.charged_peak]
 
     def free_charge(self, mockdt:datetime = datetime.min) -> bool:
         if self.free_charge_pattern is None or len(self.free_charge_pattern) == 0:

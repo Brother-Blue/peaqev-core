@@ -10,7 +10,8 @@ from .querytypes import (
     QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19,
     QUERYTYPE_BASICMAX,
     QUERYTYPE_AVERAGEOFTHREEHOURS_MIN,
-    QUERYTYPE_AVERAGEOFTHREEHOURS
+    QUERYTYPE_AVERAGEOFTHREEHOURS,
+    QUERYTYPES
 )
 from dataclasses import dataclass
 from .locale_model import Locale_Type
@@ -88,12 +89,14 @@ class SE_Partille(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
     converted = True
+    query_model = QUERYTYPES[QUERYTYPE_BASICMAX]
 
 @dataclass(frozen=True)
 class SE_Nacka_normal(Locale_Type):
     observed_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MIN
     charged_peak = QUERYTYPE_AVERAGEOFTHREEHOURS
     converted = True
+    query_model = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEHOURS]
 
     #https://www.nackaenergi.se/images/downloads/natavgifter/FAQ_NYA_TARIFFER.pdf
 
@@ -127,6 +130,7 @@ class SE_Linde_Energi(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
     converted = True
+    query_model = QUERYTYPES[QUERYTYPE_BASICMAX]
     #docs: https://www.lindeenergi.se/elnat/elnatspriser/effekttariffer.4.1491a0b016e44ba6ccfe91b4.html
 
     """
@@ -152,6 +156,7 @@ class SE_Karlstad(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX #todo check if correct
     charged_peak = QUERYTYPE_BASICMAX #todo check if correct
     converted = True
+    query_model = QUERYTYPES[QUERYTYPE_BASICMAX]
     #docs: https://karlstadsnat.se/elnat/kund/priser-och-tariffer/effekttariff/        
     """
     Note, high load extra is added on weekdays from 6-18 during november - march. 
@@ -164,6 +169,8 @@ class SE_Gothenburg(Locale_Type):
     observed_peak = QUERYTYPE_AVERAGEOFTHREEDAYS_MIN
     charged_peak = QUERYTYPE_AVERAGEOFTHREEDAYS
     converted = True
+    query_model = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+
 
 @dataclass(frozen=True)
 class SE_Bjerke_Energi(Locale_Type):
