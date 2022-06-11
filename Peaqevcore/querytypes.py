@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime, time
 from enum import Enum
 from dataclasses import dataclass
+import logging
 
 """Peak querytypes"""
 QUERYTYPE_BASICMAX = "BasicMax"
@@ -21,6 +22,8 @@ QUERYTYPE_SOLLENTUNA_MIN = "sollentuna_min"
 """Misc"""
 QUARTER_HOURLY = "quarter-hourly"
 HOURLY = "hourly"
+
+_LOGGER = logging.getLogger(__name__)
 
 class SumTypes(Enum):
     Max = 1
@@ -57,8 +60,15 @@ class PeaksModel:
     m:int = 0
 
     def set_init_dict(self, dict_data):
-        self.p = dict_data["p"]
+        ppdict = {}
+        for pp in dict_data["p"]:
+            tuplekeys = pp.split("h")
+            ppkey = (int(tuplekeys[0]), int(tuplekeys[1]))
+            ppdict[ppkey] = dict_data["p"][pp]
+        
+        self.p = ppdict
         self.m = dict_data["m"]
+
 
 class LocaleQuery:
     def __init__(
@@ -77,6 +87,17 @@ class LocaleQuery:
         self._sumcounter:SumCounter= sumcounter
         self._observed_peak_value:float = 0 
         self._charged_peak_value:float = 0
+
+    @property
+    def peaks(self) -> dict:
+        ppdict = {}
+        for pp in self._peaks.p:
+            ppkey = str(str(pp[0]) + "h" + str(pp[1]))
+            ppdict[ppkey] = self._peaks.p[pp]
+        return {
+            "m": self._peaks.m,
+            "p": ppdict
+        }
 
     @property
     def sumcounter(self) -> SumCounter:
@@ -110,7 +131,7 @@ class LocaleQuery:
             """new month, reset"""
             self.reset_values(newval, dt)
         elif _dt in self._peaks.p.keys():
-            self._set_update_for_groupby(newval, _dt)
+           self._set_update_for_groupby(newval, _dt)
         elif newval > min(self._peaks.p.values()):
             self._peaks.p[_dt] = newval
         elif len(self._peaks.p) < self.sumcounter.counter:
@@ -146,3 +167,30 @@ QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
+
+
+
+# p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+# d1 = date(2022, 7, 14)
+# t = time(22, 30)
+# dt1 = datetime.combine(d1, t)
+# p.try_update(newval=1.2, dt=dt1)
+# d2 = date(2022, 7, 16)
+# dt2 = datetime.combine(d2, t)
+# p.try_update(newval=1, dt=dt2)
+# d3 = date(2022, 7, 17)
+# dt3 = datetime.combine(d3, t)
+# p.try_update(newval=1.5, dt=dt3)
+# d3 = date(2022, 7, 17)
+# dt3 = datetime.combine(d3, t)
+# p.try_update(newval=1.7, dt=dt3)
+# d4 = date(2022, 7, 19)
+# dt4 = datetime.combine(d4, t)
+# p.try_update(newval=1.5, dt=dt4)
+# print(p._peaks)
+# exportpeaks = p.peaks
+# print(p.peaks)
+# print("resetting...")
+# p.reset_values(0, dt4)
+# p._peaks.set_init_dict(exportpeaks)
+# print(p._peaks)
