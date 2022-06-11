@@ -1,3 +1,4 @@
+from .util import _convert_quarterly_minutes
 
 class PredictionBase:
     @staticmethod
@@ -5,7 +6,8 @@ class PredictionBase:
             nowmin: int,
             nowsec: int,
             poweravg: float,
-            totalhourlyenergy: float
+            totalhourlyenergy: float,
+            is_quarterly:bool=False
     ) -> float:
         if nowmin not in range(0, 60):
             raise ValueError
@@ -14,8 +16,10 @@ class PredictionBase:
         if poweravg < 0 or totalhourlyenergy < 0:
             raise ValueError
 
-        if totalhourlyenergy > 0 and (nowmin > 0 or (nowmin + nowsec) > 30):
-            ret = (((poweravg / 60 / 60) * (3600 - ((nowmin * 60) + nowsec)) + totalhourlyenergy * 1000) / 1000)
+        minute = _convert_quarterly_minutes(nowmin, is_quarterly)
+
+        if totalhourlyenergy > 0 and (minute > 0 or (minute + nowsec) > 30):
+            ret = (((poweravg / 60 / 60) * (3600 - ((minute * 60) + nowsec)) + totalhourlyenergy * 1000) / 1000)
         else:
             ret = poweravg / 1000
         return round(ret, 3)

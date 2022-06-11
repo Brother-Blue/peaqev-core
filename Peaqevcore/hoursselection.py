@@ -1,3 +1,4 @@
+import collections
 import statistics as stat
 from datetime import datetime
 from .Models import (
@@ -6,6 +7,7 @@ from .Models import (
     CAUTIONHOURTYPE_AGGRESSIVE,
     CAUTIONHOURTYPE
 )
+
 
 class HourObject:
     def __init__(self, nh:list, ch:list, dyn_ch:dict = {}) -> None:    
@@ -30,6 +32,7 @@ class Hoursselectionbase:
     def __init__(
             self,      
             absolute_top_price: float = 0,
+            min_price: float = 0,
             cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]
     ):
         self._prices = None
@@ -38,6 +41,7 @@ class Hoursselectionbase:
         self._caution_hours = []
         self._dynamic_caution_hours = {}
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
+        self._min_price = min_price
         self._cautionhour_type = cautionhour_type
         self._validate()
     
@@ -50,7 +54,6 @@ class Hoursselectionbase:
 
     def _validate(self):
         assert 0 < self._cautionhour_type <= 1
-        assert type(self.absolute_top_price) is float
         assert len(self._caution_hours) == 0
         assert len(self._non_hours) == 0
 
@@ -100,6 +103,10 @@ class Hoursselectionbase:
     def absolute_top_price(self) -> float:
         return self._absolute_top_price
 
+    @property
+    def min_price(self) -> float:
+        return self._min_price
+
     def update(self, testhour:int = None):
         hours_today = self._update_internal(self.prices)
         hours_tomorrow = self._update_internal(self.prices_tomorrow)
@@ -125,7 +132,6 @@ class Hoursselectionbase:
     def _update_internal(self, prices) -> HourObject:
         ret = HourObject([], [], {})
         if prices is not None and len(prices) > 1:
-
             pricedict = self._create_dict(prices)
             normalized_pricedict = self._create_dict(self._normalize_prices(prices))
             
@@ -135,21 +141,33 @@ class Hoursselectionbase:
             """
             if stat.stdev(prices) > 0.05:
                 prices_ranked = self._rank_prices(pricedict, normalized_pricedict)
-                ready_hours = self._determine_hours(prices_ranked)
+                ready_hours = self._determine_hours(prices_ranked, prices)
             else:
                 ready_hours = ret
             if self._absolute_top_price is not None:
                 ret = self._add_expensive_non_hours(pricedict, ready_hours)
             else: 
                 ret = ready_hours
+            if self._min_price > 0:
+                ret = self._remove_cheap_hours(pricedict, ret)
         return ret
-
+        
     def _normalize_prices(self, prices) -> list:
         min_price = min(prices)
         ret = []
         for p in prices:
             ret.append(p/min_price)
         return ret
+
+    def _remove_cheap_hours(self, hourdict: dict, hours: HourObject) -> HourObject:
+        lst = (h for h in hourdict if hourdict[h] < self._min_price)
+        for h in lst:
+            if h in hours.nh:
+                hours.nh.remove(h)
+            elif h in hours.ch:
+                hours.ch.remove(h)
+                hours.dyn_ch.pop(h)    
+        return hours
 
     def _add_expensive_non_hours(self, hourdict: dict, readyhours:HourObject) -> HourObject:
         lst = (h for h in hourdict if hourdict[h] >= self._absolute_top_price)
@@ -163,15 +181,27 @@ class Hoursselectionbase:
         readyhours.nh.sort()
         return readyhours
 
-    def _rank_prices(self, hourdict: dict, normalized_hourdict: dict):
+    def _rank_prices(self, hourdict: dict, normalized_hourdict: dict) -> dict:
         ret = {}
         _maxval = max(hourdict.values())
         _max_normalized = max(normalized_hourdict.values())
         peaqstdev = _maxval/abs(_max_normalized/stat.stdev(normalized_hourdict.values()))
+        if peaqstdev < min(hourdict.values()):
+            peaqstdev = peaqstdev + min(hourdict.values())
         for key in hourdict:
             if hourdict[key] > peaqstdev:
-                ret[key] = {"val": hourdict[key], "permax": round(hourdict[key] / _maxval, 2)}
-        return ret
+                _permax = round(hourdict[key] / _maxval, 2)
+                ret[key] = {"val": hourdict[key], "permax": _permax}
+        return self._discard_excessive_hours(ret)
+
+    def _discard_excessive_hours(self, hours: dict):
+        """There should always be at least four regular hours before absolute_top_price kicks in."""
+        if len(hours) < 20:
+            return hours
+        while len(hours) >= 20:
+            to_pop = dict(sorted(hours.items(), key=lambda item: item[1]['val']))    
+            hours.pop(list(to_pop.keys())[0])
+        return hours
 
     def _create_dict(self, input: list):
         ret = {}
@@ -183,14 +213,22 @@ class Hoursselectionbase:
             raise ValueError
         return ret
 
-    def _determine_hours(self, price_list: dict) -> HourObject:
+    def _determine_hours(self, price_list: dict, prices: list) -> HourObject:
         _nh = []
         _dyn_ch = {}
         _ch = []
         for p in price_list:
+            _permax = round(abs(price_list[p]["permax"] - 1), 2)
+            if self._cautionhour_type == CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]:
+                _permax += 0.15
+            elif self._cautionhour_type == CAUTIONHOURTYPE[CAUTIONHOURTYPE_INTERMEDIATE]:
+                _permax += 0.05
             if float(price_list[p]["permax"]) <= self._cautionhour_type:
                 _ch.append(p)
-                _dyn_ch[p] = round(abs(price_list[p]["permax"] - 1), 2)
+                _dyn_ch[p] = round(_permax,2)
+            elif float(price_list[p]["val"]) <= (sum(prices)/len(prices)):
+                _ch.append(p)
+                _dyn_ch[p] = round(_permax,2)
             else:
                 _nh.append(p)
         return HourObject(_nh, _ch, _dyn_ch)
@@ -221,6 +259,55 @@ class Hoursselectionbase:
             except:
                 return []
         return []
+
+    def get_average_kwh_price(self, testhour:int = None):
+        hour = datetime.now().hour if testhour is None else testhour
+        ret = {}
+
+        def _looper(h:int):
+            if h in self._dynamic_caution_hours:
+                    if self._prices_tomorrow is not None and len(self._prices_tomorrow) > 0:
+                        if h < hour and len(self._prices_tomorrow) > 0:
+                            ret[h] = self._dynamic_caution_hours[h] * self._prices_tomorrow[h]
+                    if h >= hour:
+                        ret[h] = self._dynamic_caution_hours[h] * self._prices[h]
+            elif h not in self._non_hours:
+                if h < hour and len(self._prices_tomorrow) > 0:
+                    ret[h] = self._prices_tomorrow[h]
+                if h >= hour:
+                    ret[h] = self._prices[h]
+
+        if self.prices_tomorrow is None:
+            for h in range(hour,24):
+                _looper(h)
+        else:
+            for h in range(hour,(hour+24)):
+                h = h-24 if h > 23 else h
+                _looper(h)
+        
+        return round(sum(ret.values())/len(ret),2)
+        
+    def get_total_charge(self, currentpeak:float, testhour:int = None) -> float:
+        hour = datetime.now().hour if testhour is None else testhour
+        ret = {}
+
+        def _looper(h:int):
+            if h in self._dynamic_caution_hours:
+                    ret[h] = self._dynamic_caution_hours[h] * currentpeak
+            elif h in self._non_hours:
+                ret[h] = 0
+            else:
+                ret[h] = currentpeak
+
+        if self.prices_tomorrow is None:
+            for h in range(hour,24):
+                _looper(h)
+        else:
+            for h in range(hour,(hour+24)):
+                h = h-24 if h > 23 else h
+                _looper(h)
+        
+        return round(sum(ret.values()),1)
 
     @staticmethod
     def _try_parse(input:str, parsetype:type):

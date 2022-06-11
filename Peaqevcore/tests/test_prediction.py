@@ -63,3 +63,30 @@ def test_prediction_hourlyenergy_negative():
               totalhourlyenergy=-0.24)
 
 
+def test_prediction_quarterly():
+       ret = p.predictedenergy(
+       nowmin=13,
+       nowsec=37,
+       poweravg=420,
+       totalhourlyenergy=0.24,
+       is_quarterly=True
+       )
+
+       ret2 = p.predictedenergy(
+       nowmin=28,
+       nowsec=37,
+       poweravg=420,
+       totalhourlyenergy=0.24,
+       is_quarterly=True
+       )
+
+       ret3 = p.predictedenergy(
+       nowmin=28,
+       nowsec=0,
+       poweravg=420,
+       totalhourlyenergy=0.24,
+       is_quarterly=True
+       )
+
+       assert ret == ret2
+       assert ret < ret3
