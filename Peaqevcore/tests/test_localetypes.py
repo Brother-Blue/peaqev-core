@@ -1,7 +1,7 @@
 from datetime import datetime, date, time
 import pytest
 
-from ..locale.querytypes import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPES
+from peaqevcore.locale.querytypes import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPES
 from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg
 
 def test_SE_Bjerke_Energi():
