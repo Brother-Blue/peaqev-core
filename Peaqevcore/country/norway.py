@@ -1,11 +1,11 @@
-from ..querytypes import (
+from peaqevcore.locale.querytypes import (
     QUERYTYPE_AVERAGEOFTHREEDAYS,
     QUERYTYPE_AVERAGEOFTHREEDAYS_MIN,
     QUERYTYPE_AVERAGEOFTHREEHOURS_MIN, QUERYTYPE_AVERAGEOFTHREEHOURS,
     QUERYTYPE_BASICMAX,
     QUERYTYPES
 )
-from Peaqevcore.locale.locale_model import Locale_Type
+from peaqevcore.locale.locale_model import Locale_Type
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

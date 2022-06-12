@@ -1,4 +1,3 @@
-import collections
 import statistics as stat
 from datetime import datetime
 from .Models import (

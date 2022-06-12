@@ -1,8 +1,8 @@
-from .querytypes import (
+from peaqevcore.locale.querytypes import (
     QUERYTYPE_BASICMAX
 )
 
-from Peaqevcore.locale.locale_model import Locale_Type
+from peaqevcore.locale.locale_model import Locale_Type
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

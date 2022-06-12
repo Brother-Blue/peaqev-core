@@ -1,7 +1,7 @@
-from Peaqevcore.default import Default
-from Peaqevcore.country.belgium import VregBelgium
-from Peaqevcore.country.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Karlstad, SE_Kristinehamn, SE_Linde_Energi, SE_Malung_Salen, SE_Nacka_normal, SE_NACKA_timediff, SE_Partille, SE_SHE_AB, SE_Skovde, SE_Sollentuna
-from Peaqevcore.country.norway import NO_AgderEnergi, NO_GlitreEnergi, NO_LNett, NO_Tensio
+from peaqevcore.country.default import Default
+from peaqevcore.country.belgium import VregBelgium
+from peaqevcore.country.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Karlstad, SE_Kristinehamn, SE_Linde_Energi, SE_Malung_Salen, SE_Nacka_normal, SE_NACKA_timediff, SE_Partille, SE_SHE_AB, SE_Skovde, SE_Sollentuna
+from peaqevcore.country.norway import NO_AgderEnergi, NO_GlitreEnergi, NO_LNett, NO_Tensio
 
 """LOCALETYPES"""
 LOCALE_SE_GOTHENBURG = "Gothenburg, Sweden"

@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-from Peaqevcore.Models import CHARGERSTATES
+from peaqevcore.Models import CHARGERSTATES
 
 class ChargeControllerBase:  
     def __init__(

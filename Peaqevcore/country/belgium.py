@@ -1,9 +1,9 @@
-from Peaqevcore.querytypes import (
+from peaqevcore.locale.querytypes import (
     QUERYTYPE_BASICMAX,QUARTER_HOURLY
 )
 
 from dataclasses import dataclass
-from Peaqevcore.locale.locale_model import Locale_Type
+from peaqevcore.locale.locale_model import Locale_Type
 
 
 @dataclass(frozen=True)
