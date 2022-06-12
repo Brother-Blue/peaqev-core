@@ -134,13 +134,8 @@ class LocaleQuery:
         elif dt.month != self._peaks.m:
             """new month, reset"""
             self.reset_values(newval, dt)
-        elif _dt in self._peaks.p.keys():
+        else:
             self._set_update_for_groupby(newval, _dt)
-        elif newval > min(self._peaks.p.values()):
-            self._peaks.p[_dt] = newval
-        elif len(self._peaks.p) < self.sumcounter.counter:
-            self._set_update_for_groupby(newval, _dt)
-
         if len(self._peaks.p) > self.sumcounter.counter:
                 self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
         self._update_peaks()
@@ -154,9 +149,12 @@ class LocaleQuery:
                         self._peaks.p[_dt] = newval
             else:
                 self._peaks.p[_dt] = newval
-        elif self.sumcounter.groupby is TimePeriods.Hourly:
-            if newval > self._peaks.p[_dt]:
-                    self._peaks.p[_dt] = newval
+        elif self.sumcounter.groupby == TimePeriods.Hourly:
+            if _dt in self._peaks.p.keys():
+                if newval > self._peaks.p[_dt]:
+                        self._peaks.p[_dt] = newval
+            else:
+                self._peaks.p[_dt] = newval
 
     def _update_peaks(self):
         if self._props.sumtype is SumTypes.Max:
@@ -175,49 +173,15 @@ QUERYTYPES = {
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
 
-
-# p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
-# d1 = date(2022, 7, 14)
-# t = time(22, 30)
-# dt1 = datetime.combine(d1, t)
-# p.try_update(newval=1.2, dt=dt1)
-# d2 = date(2022, 7, 16)
-# dt2 = datetime.combine(d2, t)
-# p.try_update(newval=1, dt=dt2)
-# d3 = date(2022, 7, 17)
-# dt3 = datetime.combine(d3, t)
-# p.try_update(newval=1.5, dt=dt3)
-# d3 = date(2022, 7, 17)
-# dt3 = datetime.combine(d3, t)
-# p.try_update(newval=1.7, dt=dt3)
-# d4 = date(2022, 7, 19)
-# dt4 = datetime.combine(d4, t)
-# p.try_update(newval=1.5, dt=dt4)
-# print(p._peaks)
-# exportpeaks = p.peaks
-# print(p.peaks)
-# print("resetting...")
-# p.reset_values(0, dt4)
-# p._peaks.set_init_dict(exportpeaks)
-# p.try_update(newval=2.5, dt=dt4)
-# print(p._peaks)
-
-# p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
-# d1 = date(2022, 7, 14)
-# t = time(20, 30)
-# dt1 = datetime.combine(d1, t)
-# p.try_update(newval=1.2, dt=dt1)
-# print(p._peaks)
-# d2 = date(2022, 6, 11)
-# dt2 = datetime.combine(d2, t)
-# p.try_update(newval=1, dt=dt2)
-# print(p._peaks)
-# exportpeaks = p.peaks_export
-# print(p.peaks)
-# print("resetting...")
-# p.reset_values(0)
-# print(p._peaks)
-# p._peaks.set_init_dict(exportpeaks)
-# p.try_update(newval=2.5)
-# print(p._peaks)
-
+#threedays test
+p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+d1 = date(2022, 7, 14)
+t = time(20, 30)
+dt1 = datetime.combine(d1, t)
+p.try_update(newval=1.2, dt=dt1)
+d2 = date(2022, 7, 14)
+t2 = time(21, 30)
+dt2 = datetime.combine(d2, t2)
+p.try_update(newval=2, dt=dt2)
+assert len(p._peaks.p) == 1
+#threedays test
