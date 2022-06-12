@@ -173,15 +173,15 @@ QUERYTYPES = {
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
 
-#threedays test
-p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
-d1 = date(2022, 7, 14)
-t = time(20, 30)
-dt1 = datetime.combine(d1, t)
-p.try_update(newval=1.2, dt=dt1)
-d2 = date(2022, 7, 14)
-t2 = time(21, 30)
-dt2 = datetime.combine(d2, t2)
-p.try_update(newval=2, dt=dt2)
-assert len(p._peaks.p) == 1
-#threedays test
+# #threedays test
+# p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+# d1 = date(2022, 7, 14)
+# t = time(20, 30)
+# dt1 = datetime.combine(d1, t)
+# p.try_update(newval=1.2, dt=dt1)
+# d2 = date(2022, 7, 14)
+# t2 = time(21, 30)
+# dt2 = datetime.combine(d2, t2)
+# p.try_update(newval=2, dt=dt2)
+# assert len(p._peaks.p) == 1
+# #threedays test
