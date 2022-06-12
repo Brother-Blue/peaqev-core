@@ -14,7 +14,7 @@ from peaqevcore.locale.querytypes import (
     QUERYTYPES
 )
 from dataclasses import dataclass
-from peaqevcore.locale.locale_model import Locale_Type
+from ..locale.locale_model import Locale_Type
 
 
 @dataclass(frozen=True)

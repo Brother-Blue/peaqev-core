@@ -2,7 +2,7 @@ from peaqevcore.locale.querytypes import (
     QUERYTYPE_BASICMAX
 )
 
-from peaqevcore.locale.locale_model import Locale_Type
+from ..locale.locale_model import Locale_Type
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

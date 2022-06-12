@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
-from peaqevcore.locale.querytypes import (
+from ..locale.querytypes import (
 HOURLY,
 QUARTER_HOURLY,
 QUERYTYPES,

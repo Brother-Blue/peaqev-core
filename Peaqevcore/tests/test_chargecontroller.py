@@ -1,7 +1,7 @@
 from unittest import mock
 import pytest
 import time
-from peaqevcore.charging.Chargecontroller import ChargeControllerBase
+from ..charging.Chargecontroller import ChargeControllerBase
 from ..Models import CHARGERSTATES
 
 _CHARGERSTATESMOCK = {
