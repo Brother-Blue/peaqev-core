@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, date, time
 import pytest
 from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg

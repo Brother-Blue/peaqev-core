@@ -1,4 +1,4 @@
-from ..locale.querytypes import (
+from peaqevcore.locale.querytypes import (
     QUERYTYPE_AVERAGEOFTHREEDAYS,
     QUERYTYPE_AVERAGEOFTHREEDAYS_MIN,
     QUERYTYPE_AVERAGEOFTHREEHOURS_MIN, QUERYTYPE_AVERAGEOFTHREEHOURS,
