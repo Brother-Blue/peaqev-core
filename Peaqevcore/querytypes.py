@@ -147,10 +147,13 @@ class LocaleQuery:
 
     def _set_update_for_groupby(self, newval, _dt):
         if self.sumcounter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekey = [k for k,v in self._peaks.p.items() if _dt[0] in k][0]
-            if newval > self._peaks.p[_datekey]:
-                    self._peaks.p.pop(_datekey)
-                    self._peaks.p[_dt] = newval
+            _datekey = [k for k,v in self._peaks.p.items() if _dt[0] in k]
+            if len(_datekey) > 0:
+                if newval > self._peaks.p[_datekey[0]]:
+                        self._peaks.p.pop(_datekey[0])
+                        self._peaks.p[_dt] = newval
+            else:
+                self._peaks.p[_dt] = newval
         elif self.sumcounter.groupby is TimePeriods.Hourly:
             if newval > self._peaks.p[_dt]:
                     self._peaks.p[_dt] = newval
@@ -203,13 +206,13 @@ QUERYTYPES = {
 # d1 = date(2022, 7, 14)
 # t = time(20, 30)
 # dt1 = datetime.combine(d1, t)
-# p.try_update(newval=1.2)
+# p.try_update(newval=1.2, dt=dt1)
 # print(p._peaks)
 # d2 = date(2022, 6, 11)
 # dt2 = datetime.combine(d2, t)
 # p.try_update(newval=1, dt=dt2)
 # print(p._peaks)
-# exportpeaks = p.peaks
+# exportpeaks = p.peaks_export
 # print(p.peaks)
 # print("resetting...")
 # p.reset_values(0)
@@ -217,3 +220,4 @@ QUERYTYPES = {
 # p._peaks.set_init_dict(exportpeaks)
 # p.try_update(newval=2.5)
 # print(p._peaks)
+
