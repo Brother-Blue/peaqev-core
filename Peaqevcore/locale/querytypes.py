@@ -58,23 +58,24 @@ class QueryProperties:
 class PeaksModel:
     p: dict
     m:int = 0
-    has_imported:bool = False
+    is_dirty:bool = False
 
-    def set_init_dict(self, dict_data):
-        ppdict = {}
-        for pp in dict_data["p"]:
-            tkeys = pp.split("h")
-            ppkey = (int(tkeys[0]), int(tkeys[1]))
-            ppdict[ppkey] = dict_data["p"][pp]
-        if len(self.p) > 0:
-            ppdict = self.p | ppdict
-        self.p = ppdict
-        self.m = dict_data["m"]
-        self.has_imported = True
+    def set_init_dict(self, dict_data, dt = datetime.now()):
+        if dt.month == self.m:
+            ppdict = {}
+            for pp in dict_data["p"]:
+                tkeys = pp.split("h")
+                ppkey = (int(tkeys[0]), int(tkeys[1]))
+                ppdict[ppkey] = dict_data["p"][pp]
+            if len(self.p) > 0:
+                ppdict = self.p | ppdict
+            self.p = ppdict
+            self.m = dict_data["m"]
+            self.is_dirty = True
 
     def reset(self) -> None:
         self.m = 0
-        self.has_imported = False
+        self.is_dirty = False
         self.p = {}
 
 class LocaleQuery:
@@ -113,6 +114,8 @@ class LocaleQuery:
 
     @property
     def peaks(self) -> PeaksModel:
+        if self._peaks.is_dirty:
+            self._sanitize_values()
         return self._peaks
 
     @property
@@ -123,8 +126,8 @@ class LocaleQuery:
 
     @property
     def charged_peak(self) -> float: 
-        if self._peaks.has_imported:
-            self._update_peaks()
+        if self._peaks.is_dirty:
+            self._sanitize_values()
         ret = self._charged_peak_value
         return round(ret,2)
 
@@ -134,8 +137,8 @@ class LocaleQuery:
 
     @property
     def observed_peak(self) -> float: 
-        if self._peaks.has_imported:
-            self._update_peaks()
+        if self._peaks.is_dirty:
+            self._sanitize_values()
         ret = self.charged_peak if self._props.sumtype is SumTypes.Max else self._observed_peak_value
         return round(ret, 2)
 
@@ -144,8 +147,10 @@ class LocaleQuery:
         self._observed_peak_value = val
 
     def try_update(self, newval, dt = datetime.now()):
+        if self.peaks.is_dirty:
+            self._sanitize_values()
         _dt = (dt.day, dt.hour)
-        if len(self._peaks.p) == 0:
+        if len(self.peaks.p) == 0:
             """first addition for this month"""
             self._peaks.p[_dt] = newval
             self._peaks.m = dt.month
@@ -154,25 +159,25 @@ class LocaleQuery:
             self.reset_values(newval, dt)
         else:
             self._set_update_for_groupby(newval, _dt)
-        if len(self._peaks.p) > self.sumcounter.counter:
-                self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
+        if len(self.peaks.p) > self.sumcounter.counter:
+                self.peaks.p.pop(min(self.peaks.p, key=self._peaks.p.get))
         self._update_peaks()
 
     def _set_update_for_groupby(self, newval, _dt):
         if self.sumcounter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekey = [k for k,v in self._peaks.p.items() if _dt[0] in k]
+            _datekey = [k for k,v in self.peaks.p.items() if _dt[0] in k]
             if len(_datekey) > 0:
-                if newval > self._peaks.p[_datekey[0]]:
-                        self._peaks.p.pop(_datekey[0])
-                        self._peaks.p[_dt] = newval
+                if newval > self.peaks.p[_datekey[0]]:
+                        self.peaks.p.pop(_datekey[0])
+                        self.peaks.p[_dt] = newval
             else:
-                self._peaks.p[_dt] = newval
+                self.peaks.p[_dt] = newval
         elif self.sumcounter.groupby == TimePeriods.Hourly:
             if _dt in self._peaks.p.keys():
-                if newval > self._peaks.p[_dt]:
-                        self._peaks.p[_dt] = newval
+                if newval > self.peaks.p[_dt]:
+                        self.peaks.p[_dt] = newval
             else:
-                self._peaks.p[_dt] = newval
+                self.peaks.p[_dt] = newval
 
     def _update_peaks(self):
         if self._props.sumtype is SumTypes.Max:
@@ -185,27 +190,49 @@ class LocaleQuery:
         self._peaks.p.clear()
         self.try_update(newval, dt)
 
+    def _sanitize_values(self):
+        def countX(lst, x):
+            count = 0
+            for ele in lst:
+                if ele[0] == x:
+                    count = count + 1
+            return count
+
+        if self.sumcounter.groupby == TimePeriods.Daily:
+            duplicates = set()
+            for k in self._peaks.p.keys():
+                if countX(self._peaks.p.keys(), k[0]) > 1:
+                    duplicates.add(k)
+            if len(duplicates) > 0:
+                for d in duplicates:
+                    comparerkeys = []
+                    comparervalues = []
+                    for k in self._peaks.p.keys():
+                        if k == d:
+                            comparerkeys.append(k)
+                            comparervalues.append(self._peaks.p[k])                           
+                    self._peaks.p.pop(comparerkeys[comparervalues.index(min(comparervalues))])
+        while len(self._peaks.p) > self.sumcounter.counter:
+            self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
+        self._peaks.is_dirty = False
+        self._update_peaks()
+
 QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
 
-# to_state_machine = {'m': 7, 'p': {'14h21': 2}}
+
+# to_state_machine = {'m': 7, 'p': {'14h21': 2, '11h22': 1.49, '12h9': 1.93, '12h14': 0.73}}
 # p1 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
 # p1.reset()
 # p1.try_update(newval=1, dt=datetime.combine(date(2022, 7, 15), time(21, 30)))
-# p1.peaks.set_init_dict(to_state_machine)
-# print(p1.peaks)
-# assert len(p1.peaks.p) == 2
-# print(p1.charged_peak)
-# assert p1.charged_peak == 1.5
-# print(p1.observed_peak)
-# assert p1.observed_peak == 1
-# p1.try_update(newval=2, dt=datetime.combine(date(2022, 7, 16), time(22, 30)))
-# print(p1.peaks)
+# p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
 # assert len(p1.peaks.p) == 3
-# print(p1.charged_peak)
-# assert p1.charged_peak == 1.67
-# print(p1.observed_peak)
+# assert p1.charged_peak == 1.5
 # assert p1.observed_peak == 1
+# p1.try_update(newval=1.5, dt=datetime.combine(date(2022, 7, 15), time(22, 30)))
+# assert len(p1.peaks.p) == 3
+# assert p1.charged_peak == 1.66
+# assert p1.observed_peak == 1.49

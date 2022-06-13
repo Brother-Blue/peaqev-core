@@ -34,7 +34,7 @@ def test_generic_querytype_avg_threedays3():
     p1 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
     p1.reset()
     p1.try_update(newval=1, dt=datetime.combine(date(2022, 7, 15), time(21, 30)))
-    p1.peaks.set_init_dict(to_state_machine)
+    p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
     assert len(p1.peaks.p) == 2
     assert p1.charged_peak == 1.5
     assert p1.observed_peak == 1
@@ -42,6 +42,20 @@ def test_generic_querytype_avg_threedays3():
     assert len(p1.peaks.p) == 2
     assert p1.charged_peak == 2
     assert p1.observed_peak == 2
+
+def test_faulty_number_in_import():
+    to_state_machine = {'m': 7, 'p': {'14h21': 2, '11h22': 1.49, '12h9': 1.93, '12h14': 0.73}}
+    p1 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+    p1.reset()
+    p1.try_update(newval=1, dt=datetime.combine(date(2022, 7, 15), time(21, 30)))
+    p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
+    assert len(p1.peaks.p) == 3
+    assert p1.charged_peak == 1.5
+    assert p1.observed_peak == 1
+    p1.try_update(newval=1.5, dt=datetime.combine(date(2022, 7, 15), time(22, 30)))
+    assert len(p1.peaks.p) == 3
+    assert p1.charged_peak == 1.66
+    assert p1.observed_peak == 1.49
     
 
 def test_SE_Gothenburg():
