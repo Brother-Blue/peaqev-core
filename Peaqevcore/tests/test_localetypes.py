@@ -2,7 +2,7 @@ from datetime import datetime, date, time
 import pytest
 
 from peaqevcore.locale.querytypes import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPES
-from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg
+from peaqevcore.country.sweden import SE_Bjerke_Energi, SE_Gothenburg
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi

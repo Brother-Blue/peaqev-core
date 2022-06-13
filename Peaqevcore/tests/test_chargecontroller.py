@@ -1,8 +1,8 @@
 from unittest import mock
 import pytest
 import time
-from ..Chargecontroller import ChargeControllerBase
-from ..Models import CHARGERSTATES
+from peaqevcore.Chargecontroller import ChargeControllerBase
+from peaqevcore.Models import CHARGERSTATES
 
 _CHARGERSTATESMOCK = {
     CHARGERSTATES.Idle: ["idle"],
