@@ -197,21 +197,15 @@ class LocaleQuery:
                 if ele[0] == x:
                     count = count + 1
             return count
-
         if self.sumcounter.groupby == TimePeriods.Daily:
-            duplicates = set()
+            duplicates = {}
             for k in self._peaks.p.keys():
                 if countX(self._peaks.p.keys(), k[0]) > 1:
-                    duplicates.add(k)
+                    duplicates[k] = self._peaks.p[k]
             if len(duplicates) > 0:
-                for d in duplicates:
-                    comparerkeys = []
-                    comparervalues = []
-                    for k in self._peaks.p.keys():
-                        if k == d:
-                            comparerkeys.append(k)
-                            comparervalues.append(self._peaks.p[k])                           
-                    self._peaks.p.pop(comparerkeys[comparervalues.index(min(comparervalues))])
+                minkey = min(duplicates, key=duplicates.get)
+                self._peaks.p.pop(minkey)
+                    
         while len(self._peaks.p) > self.sumcounter.counter:
             self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
         self._peaks.is_dirty = False
@@ -224,15 +218,3 @@ QUERYTYPES = {
 }
 
 
-# to_state_machine = {'m': 7, 'p': {'14h21': 2, '11h22': 1.49, '12h9': 1.93, '12h14': 0.73}}
-# p1 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
-# p1.reset()
-# p1.try_update(newval=1, dt=datetime.combine(date(2022, 7, 15), time(21, 30)))
-# p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
-# assert len(p1.peaks.p) == 3
-# assert p1.charged_peak == 1.5
-# assert p1.observed_peak == 1
-# p1.try_update(newval=1.5, dt=datetime.combine(date(2022, 7, 15), time(22, 30)))
-# assert len(p1.peaks.p) == 3
-# assert p1.charged_peak == 1.66
-# assert p1.observed_peak == 1.49
