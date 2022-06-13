@@ -58,17 +58,24 @@ class QueryProperties:
 class PeaksModel:
     p: dict
     m:int = 0
+    has_imported:bool = False
 
     def set_init_dict(self, dict_data):
         ppdict = {}
         for pp in dict_data["p"]:
-            tuplekeys = pp.split("h")
-            ppkey = (int(tuplekeys[0]), int(tuplekeys[1]))
+            tkeys = pp.split("h")
+            ppkey = (int(tkeys[0]), int(tkeys[1]))
             ppdict[ppkey] = dict_data["p"][pp]
-        
+        if len(self.p) > 0:
+            ppdict = self.p | ppdict
         self.p = ppdict
         self.m = dict_data["m"]
+        self.has_imported = True
 
+    def reset(self) -> None:
+        self.m = 0
+        self.has_imported = False
+        self.p = {}
 
 class LocaleQuery:
     def __init__(
@@ -87,6 +94,11 @@ class LocaleQuery:
         self._sumcounter:SumCounter= sumcounter
         self._observed_peak_value:float = 0 
         self._charged_peak_value:float = 0
+
+    def reset(self) -> None:
+        self._peaks.reset()
+        self._observed_peak_value = 0
+        self._charged_peak_value = 0
 
     @property
     def peaks_export(self) -> dict:
@@ -111,7 +123,10 @@ class LocaleQuery:
 
     @property
     def charged_peak(self) -> float: 
-        return self._charged_peak_value
+        if self._peaks.has_imported:
+            self._update_peaks()
+        ret = self._charged_peak_value
+        return round(ret,2)
 
     @charged_peak.setter
     def charged_peak(self, val):
@@ -119,7 +134,10 @@ class LocaleQuery:
 
     @property
     def observed_peak(self) -> float: 
-        return self.charged_peak if self._props.sumtype is SumTypes.Max else self._observed_peak_value
+        if self._peaks.has_imported:
+            self._update_peaks()
+        ret = self.charged_peak if self._props.sumtype is SumTypes.Max else self._observed_peak_value
+        return round(ret, 2)
 
     @observed_peak.setter
     def observed_peak(self, val):
@@ -173,15 +191,21 @@ QUERYTYPES = {
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
 
-# #threedays test
-# p = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
-# d1 = date(2022, 7, 14)
-# t = time(20, 30)
-# dt1 = datetime.combine(d1, t)
-# p.try_update(newval=1.2, dt=dt1)
-# d2 = date(2022, 7, 14)
-# t2 = time(21, 30)
-# dt2 = datetime.combine(d2, t2)
-# p.try_update(newval=2, dt=dt2)
-# assert len(p._peaks.p) == 1
-# #threedays test
+# to_state_machine = {'m': 7, 'p': {'14h21': 2}}
+# p1 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEDAYS]
+# p1.reset()
+# p1.try_update(newval=1, dt=datetime.combine(date(2022, 7, 15), time(21, 30)))
+# p1.peaks.set_init_dict(to_state_machine)
+# print(p1.peaks)
+# assert len(p1.peaks.p) == 2
+# print(p1.charged_peak)
+# assert p1.charged_peak == 1.5
+# print(p1.observed_peak)
+# assert p1.observed_peak == 1
+# p1.try_update(newval=2, dt=datetime.combine(date(2022, 7, 16), time(22, 30)))
+# print(p1.peaks)
+# assert len(p1.peaks.p) == 3
+# print(p1.charged_peak)
+# assert p1.charged_peak == 1.67
+# print(p1.observed_peak)
+# assert p1.observed_peak == 1
