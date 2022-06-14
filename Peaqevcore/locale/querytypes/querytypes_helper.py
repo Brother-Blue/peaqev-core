@@ -2,23 +2,23 @@ from enum import Enum
 from datetime import date, datetime, time
 from dataclasses import dataclass
 
-
-class QueryExtension:
+@dataclass
+class QueryHelper:
+    #the following logic is a must to count a specific timing as peak
     pass
 
 
 class QueryService:
-
     @staticmethod
     def is_in_schema() -> bool:
         pass
 
     @staticmethod
-    def query(prefix: str, suffix: str, *params: str):
+    def query(*params: str):
         paramret = ""
         for p in params:
             paramret = paramret+p
-        return prefix+paramret+suffix
+        return paramret
 
     @staticmethod
     def group(*contents: str) -> str:
@@ -27,29 +27,35 @@ class QueryService:
             ret += c
         return f"({ret})"
 
-    AND = " AND "
-    OR = " OR "
-    DIVIDENTS = {
-        "eq": "= ",
-        "lt": "< ",
-        "gt": "> ",
-        "not": "<> ",
-        "lteq": "<= ",
-        "gteq": ">= ",
-        "in": "IN "
+    AND = "AND"
+    OR = "OR"
+
+    DIVIDERS = {
+        AND: lambda a, b : a == b,
+        OR: lambda a, b : a == b
+    }
+
+    LOGIC = {
+        "eq": lambda a, b : a == b,
+        "lt": lambda a, b : a < b,
+        "gt": lambda a, b : a > b,
+        "not": lambda a, b : a != b,
+        "lteq": lambda a, b : a <= b,
+        "gteq": lambda a, b : a >= b,
+        "in": lambda a, b : a in b
     }
 
     DATETIMEPARTS = {
-        "weekday": "w",
-        "month": "m",
-        "hour": "H"
+        "weekday": lambda d : d.weekday(),
+        "month":  lambda d : d.month,
+        "hour":  lambda d : d.hour,
     }
 
     @staticmethod
     def datepart(divident: str, dtpart: str, *args: int) -> str:
         _base = QueryService._strftime_base(QueryService.DATETIMEPARTS[dtpart])
         _arg = str(args) if len(args) > 1 else str(args[0])
-        _divident = QueryService.DIVIDENTS[divident]
+        _divident = QueryService.LOGIC[divident]
         return _base + _divident + _arg
 
     @staticmethod
@@ -80,7 +86,7 @@ class QueryProperties:
     sumtype: SumTypes
     timecalc:TimePeriods
     cycle: TimePeriods
-    queryparams: QueryExtension
+    queryparams: QueryHelper
 
 @dataclass
 class PeaksModel:
@@ -105,3 +111,18 @@ class PeaksModel:
         self.m = 0
         self.is_dirty = False
         self.p = {}
+
+
+
+# test = QueryService.query(
+#                     QueryService.AND,
+#                     QueryService.datepart("gteq", "hour", 7),
+#                     QueryService.AND,
+#                     QueryService.datepart("lteq", "hour", 18),
+#                     QueryService.AND,
+#                     QueryService.datepart("lteq", "weekday", 4)
+#                 )
+#print(test)
+
+print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
+print(QueryService.DATETIMEPARTS["month"](datetime.now()))
