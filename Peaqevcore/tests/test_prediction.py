@@ -1,4 +1,4 @@
-from peaqevcore.Prediction import PredictionBase as p
+from ..Prediction import PredictionBase as p
 import pytest
 
 def test_prediction():

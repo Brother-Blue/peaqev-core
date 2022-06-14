@@ -1,9 +1,9 @@
 from datetime import datetime, date, time
 import pytest
 
-from peaqevcore.locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS
-from peaqevcore.locale.querytypes.querytypes import QUERYTYPES
-from peaqevcore.country.sweden import SE_Bjerke_Energi, SE_Gothenburg
+from ..locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS
+from ..locale.querytypes.querytypes import QUERYTYPES
+from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi

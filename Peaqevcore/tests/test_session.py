@@ -1,4 +1,4 @@
-from peaqevcore.session import SessionPrice
+from ..session import SessionPrice
 import pytest
 
 def test_session_fluctuate():
