@@ -12,11 +12,12 @@ from .querytypes_helper import (
     QueryExtension, 
     QueryProperties, 
     SumTypes, 
-    TimePeriods, 
-    QUERYSETS, 
+    TimePeriods,  
     SumCounter, 
     PeaksModel
     )
+
+from .querysets import QUERYSETS
 
 _LOGGER = logging.getLogger(__name__)
 

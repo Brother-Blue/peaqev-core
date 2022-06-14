@@ -1,7 +1,6 @@
 from enum import Enum
 from datetime import date, datetime, time
 from dataclasses import dataclass
-from .const import QUERYTYPE_SOLLENTUNA
 
 
 class QueryExtension:
@@ -9,6 +8,11 @@ class QueryExtension:
 
 
 class QueryService:
+
+    @staticmethod
+    def is_in_schema() -> bool:
+        pass
+
     @staticmethod
     def query(prefix: str, suffix: str, *params: str):
         paramret = ""
@@ -101,15 +105,3 @@ class PeaksModel:
         self.m = 0
         self.is_dirty = False
         self.p = {}
-
-QUERYSETS = {
-    QUERYTYPE_SOLLENTUNA: 
-                QueryService.query(
-                    QueryService.AND,
-                    QueryService.datepart("gteq", "hour", 7),
-                    QueryService.AND,
-                    QueryService.datepart("lteq", "hour", 18),
-                    QueryService.AND,
-                    QueryService.datepart("lteq", "weekday", 4)
-                )
-}
