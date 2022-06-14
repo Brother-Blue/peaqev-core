@@ -21,6 +21,7 @@ class QueryService:
         return paramret
 
     @staticmethod
+    #todo make groups be either and or or)
     def group(*contents: str) -> str:
         ret = ""
         for c in contents:
@@ -124,5 +125,13 @@ class PeaksModel:
 #                 )
 #print(test)
 
+
+# test = QueryService.query(
+#                     QueryService.groupAND(
+#                     QueryService.datepart("gteq", "hour", 7),
+#                     QueryService.datepart("lteq", "hour", 18),
+#                     QueryService.datepart("lteq", "weekday", 4)
+#                     )
+#                 )
 print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
 print(QueryService.DATETIMEPARTS["month"](datetime.now()))
