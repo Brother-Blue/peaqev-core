@@ -1,7 +1,8 @@
 from datetime import date, datetime, time
-from enum import Enum
+
 from dataclasses import dataclass
 import logging
+from querytypes_helper import QueryExtension as Q, SumTypes, TimePeriods
 
 """Peak querytypes"""
 QUERYTYPE_BASICMAX = "BasicMax"
@@ -25,22 +26,6 @@ HOURLY = "hourly"
 
 _LOGGER = logging.getLogger(__name__)
 
-class SumTypes(Enum):
-    Max = 1
-    Avg = 2
-    Min = 3
-
-
-class TimePeriods(Enum):
-    Hourly = 1
-    Daily = 2
-    Weekly = 3
-    BiWeekly = 4
-    Monthly = 5
-    Yearly = 6
-    UnSet = 7
-
-
 @dataclass(frozen=True)
 class SumCounter:
     counter:int = 1
@@ -52,7 +37,7 @@ class QueryProperties:
     sumtype: SumTypes
     timecalc:TimePeriods
     cycle: TimePeriods
-
+    subqueries: Q
 
 @dataclass
 class PeaksModel:
@@ -214,7 +199,8 @@ class LocaleQuery:
 QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
-    QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
+    QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
+    QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily))
 }
 
 

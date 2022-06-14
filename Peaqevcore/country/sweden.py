@@ -113,6 +113,7 @@ class SE_NACKA_timediff(Locale_Type):
 class SE_Malung_Salen(Locale_Type):
     observed_peak = QUERYTYPE_AVERAGEOFFIVEDAYS_MIN
     charged_peak = QUERYTYPE_AVERAGEOFFIVEDAYS
+    converted = True
     free_charge_pattern = [
         {
             "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
