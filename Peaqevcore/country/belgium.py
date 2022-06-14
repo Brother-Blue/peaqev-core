@@ -1,6 +1,4 @@
-from peaqevcore.locale.querytypes import (
-    QUERYTYPE_BASICMAX,QUARTER_HOURLY
-)
+from ..locale.querytypes.const import (QUARTER_HOURLY, QUERYTYPE_BASICMAX)
 
 from dataclasses import dataclass
 from ..locale.locale_model import Locale_Type

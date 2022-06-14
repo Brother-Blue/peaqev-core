@@ -1,4 +1,4 @@
-from peaqevcore.locale.querytypes import (
+from ..locale.querytypes.const import (
     QUERYTYPE_AVERAGEOFFIVEDAYS, 
     QUERYTYPE_AVERAGEOFFIVEDAYS_MIN, 
     QUERYTYPE_AVERAGEOFTHREEDAYS, 
@@ -10,9 +10,10 @@ from peaqevcore.locale.querytypes import (
     QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19,
     QUERYTYPE_BASICMAX,
     QUERYTYPE_AVERAGEOFTHREEHOURS_MIN,
-    QUERYTYPE_AVERAGEOFTHREEHOURS,
-    QUERYTYPES
+    QUERYTYPE_AVERAGEOFTHREEHOURS
 )
+
+from ..locale.querytypes.querytypes import QUERYTYPES
 from dataclasses import dataclass
 from ..locale.locale_model import Locale_Type
 

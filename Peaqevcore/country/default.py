@@ -1,4 +1,4 @@
-from peaqevcore.locale.querytypes import (
+from ..locale.querytypes.const import (
     QUERYTYPE_BASICMAX
 )
 

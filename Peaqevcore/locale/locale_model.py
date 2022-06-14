@@ -2,9 +2,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
-from .querytypes import (
+from .querytypes.const import (
 HOURLY,
-QUARTER_HOURLY,
+QUARTER_HOURLY
+)
+
+from .querytypes.querytypes import(
 QUERYTYPES,
 LocaleQuery
 )

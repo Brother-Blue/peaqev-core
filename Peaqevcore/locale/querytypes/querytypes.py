@@ -1,67 +1,25 @@
 from datetime import date, datetime, time
-
-from dataclasses import dataclass
 import logging
-from querytypes_helper import QueryExtension as Q, SumTypes, TimePeriods
 
-"""Peak querytypes"""
-QUERYTYPE_BASICMAX = "BasicMax"
-QUERYTYPE_AVERAGEOFTHREEDAYS = "AverageOfThreeDays"
-QUERYTYPE_AVERAGEOFTHREEHOURS = "AverageOfThreeHours"
-QUERYTYPE_AVERAGEOFTHREEDAYS_MIN = "AverageOfThreeDays_Min"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MIN = "AverageOfThreeHours_Min"
-QUERYTYPE_AVERAGEOFFIVEDAYS = "AverageOfFiveDays"
-QUERYTYPE_AVERAGEOFFIVEDAYS_MIN = "AverageOfFiveDays_Min"
-QUERYTYPE_HIGHLOAD = "HighLoad"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19 = "sala"
-QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN = "sala"
-QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22 = "skövde"
-QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR = "kristinehamn"
-QUERYTYPE_SOLLENTUNA = "sollentuna"
-QUERYTYPE_SOLLENTUNA_MIN = "sollentuna_min"
-
-"""Misc"""
-QUARTER_HOURLY = "quarter-hourly"
-HOURLY = "hourly"
+from .const import (
+    QUERYTYPE_AVERAGEOFTHREEHOURS,
+    QUERYTYPE_AVERAGEOFTHREEDAYS,
+    QUERYTYPE_BASICMAX,
+    QUERYTYPE_AVERAGEOFFIVEDAYS,
+    QUERYTYPE_SOLLENTUNA
+    )
+from .querytypes_helper import (
+    QueryExtension, 
+    QueryProperties, 
+    SumTypes, 
+    TimePeriods, 
+    QUERYSETS, 
+    SumCounter, 
+    PeaksModel
+    )
 
 _LOGGER = logging.getLogger(__name__)
 
-@dataclass(frozen=True)
-class SumCounter:
-    counter:int = 1
-    groupby: TimePeriods = TimePeriods.UnSet
-
-
-@dataclass(frozen=True)
-class QueryProperties:
-    sumtype: SumTypes
-    timecalc:TimePeriods
-    cycle: TimePeriods
-    subqueries: Q
-
-@dataclass
-class PeaksModel:
-    p: dict
-    m:int = 0
-    is_dirty:bool = False
-
-    def set_init_dict(self, dict_data, dt = datetime.now()):
-        if dt.month == self.m:
-            ppdict = {}
-            for pp in dict_data["p"]:
-                tkeys = pp.split("h")
-                ppkey = (int(tkeys[0]), int(tkeys[1]))
-                ppdict[ppkey] = dict_data["p"][pp]
-            if len(self.p) > 0:
-                ppdict = self.p | ppdict
-            self.p = ppdict
-            self.m = dict_data["m"]
-            self.is_dirty = True
-
-    def reset(self) -> None:
-        self.m = 0
-        self.is_dirty = False
-        self.p = {}
 
 class LocaleQuery:
     def __init__(
@@ -69,13 +27,15 @@ class LocaleQuery:
         sumtype: SumTypes, 
         timecalc: TimePeriods, 
         cycle: TimePeriods, 
-        sumcounter: SumCounter = None
+        sumcounter: SumCounter = None,
+        queryparams: QueryExtension = None
         ) -> None:    
         self._peaks:PeaksModel = PeaksModel({})
         self._props = QueryProperties(
             sumtype, 
             timecalc, 
-            cycle
+            cycle,
+            queryparams
             )
         self._sumcounter:SumCounter= sumcounter
         self._observed_peak_value:float = 0 
@@ -200,7 +160,8 @@ QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
-    QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily))
+    QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily)),
+    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryparams=QUERYSETS[QUERYTYPE_SOLLENTUNA])
 }
 
 
