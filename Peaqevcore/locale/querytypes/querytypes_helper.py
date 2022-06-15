@@ -2,6 +2,10 @@ from enum import Enum
 from datetime import date, datetime, time
 from dataclasses import dataclass
 
+class Dividents(Enum):
+    AND = 1
+    OR = 2
+
 @dataclass
 class QueryHelper:
     #the following logic is a must to count a specific timing as peak
@@ -14,54 +18,40 @@ class QueryService:
         pass
 
     @staticmethod
-    def query(*params: str):
-        paramret = ""
-        for p in params:
-            paramret = paramret+p
-        return paramret
+    def query(*params) -> bool:
+        return all(params)
 
     @staticmethod
-    #todo make groups be either and or or)
-    def group(*contents: str) -> str:
-        ret = ""
-        for c in contents:
-            ret += c
-        return f"({ret})"
+    def group(divident: Dividents, *contents: list[object]) -> bool:
+        if divident == Dividents.AND:
+            return all(contents)
+        elif divident == Dividents.OR:
+            return any(contents)
 
+    @staticmethod
+    def datepart(divident: str, dtpart: str, *args: int) -> bool:
+        _arg = [args] if len(args) > 1 else args[0]
+        _divident = QueryService.LOGIC[divident](QueryService.DATETIMEPARTS[dtpart](QueryService.MOCKDT), _arg)
+        #print(f"divident: {_divident}, dtpart: {dtpart}")
+        return _divident
+
+    MOCKDT = datetime.now()
     AND = "AND"
     OR = "OR"
-
-    DIVIDERS = {
-        AND: lambda a, b : a == b,
-        OR: lambda a, b : a == b
-    }
-
     LOGIC = {
         "eq": lambda a, dtp : dtp == a,
-        "lt": lambda a, dtp : dtp < a,
-        "gt": lambda a, dtp : dtp > a,
+        "lt": lambda a, dtp : a < dtp,
+        "gt": lambda a, dtp : a > dtp,
         "not": lambda a, dtp : dtp != a,
-        "lteq": lambda a, dtp : dtp <= a,
-        "gteq": lambda a, dtp : dtp >= a,
+        "lteq": lambda a, dtp : a <= dtp,
+        "gteq": lambda a, dtp : a >= dtp,
         "in": lambda a, dtp : dtp in a
     }
-
     DATETIMEPARTS = {
         "weekday": lambda d : d.weekday(),
         "month":  lambda d : d.month,
         "hour":  lambda d : d.hour,
     }
-
-    @staticmethod
-    def datepart(divident: str, dtpart: str, *args: int) -> str:
-        _base = QueryService._strftime_base(QueryService.DATETIMEPARTS[dtpart])
-        _arg = str(args) if len(args) > 1 else str(args[0])
-        _divident = QueryService.LOGIC[divident]
-        return _base + _divident + _arg
-
-    @staticmethod
-    def _strftime_base(time_type: str) -> str:
-        return f"cast(strftime(\'%{time_type}\', start) as int) "
 
 class SumTypes(Enum):
     Max = 1
@@ -114,24 +104,17 @@ class PeaksModel:
         self.p = {}
 
 
+QueryService.MOCKDT = datetime(2022, 6, 15, 19,10,0)
+test = QueryService.query(
+                    QueryService.group(
+                        Dividents.AND,
+                        QueryService.datepart("gteq", "hour", 7),
+                        QueryService.datepart("lteq", "hour", 18),
+                        QueryService.datepart("lteq", "weekday", 4)
+                        )
+                    )
 
-# test = QueryService.query(
-#                     QueryService.AND,
-#                     QueryService.datepart("gteq", "hour", 7),
-#                     QueryService.AND,
-#                     QueryService.datepart("lteq", "hour", 18),
-#                     QueryService.AND,
-#                     QueryService.datepart("lteq", "weekday", 4)
-#                 )
-#print(test)
+print(test)
 
-
-# test = QueryService.query(
-#                     QueryService.groupAND(
-#                     QueryService.datepart("gteq", "hour", 7),
-#                     QueryService.datepart("lteq", "hour", 18),
-#                     QueryService.datepart("lteq", "weekday", 4)
-#                     )
-#                 )
-print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
-print(QueryService.DATETIMEPARTS["month"](datetime.now()))
+# print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
+# print(QueryService.DATETIMEPARTS["month"](datetime.now()))
