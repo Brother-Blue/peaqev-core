@@ -37,13 +37,13 @@ class QueryService:
     }
 
     LOGIC = {
-        "eq": lambda a, b : a == b,
-        "lt": lambda a, b : a < b,
-        "gt": lambda a, b : a > b,
-        "not": lambda a, b : a != b,
-        "lteq": lambda a, b : a <= b,
-        "gteq": lambda a, b : a >= b,
-        "in": lambda a, b : a in b
+        "eq": lambda a, dtp : dtp == a,
+        "lt": lambda a, dtp : dtp < a,
+        "gt": lambda a, dtp : dtp > a,
+        "not": lambda a, dtp : dtp != a,
+        "lteq": lambda a, dtp : dtp <= a,
+        "gteq": lambda a, dtp : dtp >= a,
+        "in": lambda a, dtp : dtp in a
     }
 
     DATETIMEPARTS = {
