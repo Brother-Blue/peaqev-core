@@ -9,7 +9,7 @@ from .const import (
     QUERYTYPE_SOLLENTUNA
     )
 from .querytypes_helper import (
-    QueryHelper, 
+    QueryService, 
     QueryProperties, 
     SumTypes, 
     TimePeriods,  
@@ -29,7 +29,7 @@ class LocaleQuery:
         timecalc: TimePeriods, 
         cycle: TimePeriods, 
         sumcounter: SumCounter = None,
-        queryparams: QueryHelper = None
+        queryparams: QueryService = None
         ) -> None:    
         self._peaks:PeaksModel = PeaksModel({})
         self._props = QueryProperties(

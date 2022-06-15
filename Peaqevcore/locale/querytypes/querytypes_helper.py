@@ -6,17 +6,8 @@ class Dividents(Enum):
     AND = 1
     OR = 2
 
-@dataclass
-class QueryHelper:
-    #the following logic is a must to count a specific timing as peak
-    pass
-
 
 class QueryService:
-    @staticmethod
-    def is_in_schema() -> bool:
-        pass
-
     @staticmethod
     def query(*params) -> bool:
         return all(params)
@@ -31,8 +22,10 @@ class QueryService:
     @staticmethod
     def datepart(divident: str, dtpart: str, *args: int) -> bool:
         _arg = [args] if len(args) > 1 else args[0]
-        _divident = QueryService.LOGIC[divident](QueryService.DATETIMEPARTS[dtpart](QueryService.MOCKDT), _arg)
-        #print(f"divident: {_divident}, dtpart: {dtpart}")
+        _divident = QueryService.LOGIC[divident](
+            QueryService.DATETIMEPARTS[dtpart](QueryService.MOCKDT), 
+            _arg
+            )
         return _divident
 
     MOCKDT = datetime.now()
