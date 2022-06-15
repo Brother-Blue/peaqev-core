@@ -2,18 +2,18 @@ from .const import (
     QUERYTYPE_SOLLENTUNA,
     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
     )
-from .querytypes_helper import QueryService as Q
+from .querytypes_helper import QueryService as Q, Dividents
 
 QUERYSETS = {
     QUERYTYPE_SOLLENTUNA: 
                 Q.query(
-                    Q.AND,
-                    Q.datepart("gteq", "hour", 7),
-                    Q.AND,
-                    Q.datepart("lteq", "hour", 18),
-                    Q.AND,
-                    Q.datepart("lteq", "weekday", 4)
-                ),
+                    Q.group(
+                        Dividents.AND,
+                        Q.datepart("gteq", "hour", 7),
+                        Q.datepart("lteq", "hour", 18),
+                        Q.datepart("lteq", "weekday", 4)
+                        )
+                    ),
     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR: 
             Q.query(
                     Q.group(
