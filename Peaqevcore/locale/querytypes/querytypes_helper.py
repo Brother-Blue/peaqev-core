@@ -1,3 +1,4 @@
+from ast import Raise
 from enum import Enum
 from datetime import date, datetime, time
 from dataclasses import dataclass
@@ -8,29 +9,43 @@ class Dividents(Enum):
 
 
 class QueryService:
-    @staticmethod
-    def query(*params) -> bool:
-        if len(params) == 0: 
+    DT = datetime.now()
+    def __init__(self, args:dict = {}):
+        self._settings = args
+    
+    def should_register_peak(self, dt:datetime) -> bool:
+        if len(self._settings) == 0: 
             return True
-        return all(params)
+        DT = dt
+        mainret = []
+        for s in self._settings:
+            groupret = []
+            for a in s["args"]:
+                groupret.append(QueryService.datepart(a["type"], a["dttype"], a["values"]))
+            if s["divident"] is Dividents.AND:
+                print("hehej")
+                print(groupret)
+                mainret.append(all(groupret))
+            else:
+                mainret.append(any(groupret))
+        return any(mainret)
+
+    # @staticmethod
+    # def group(divident: Dividents, *contents: list[object]) -> bool:
+    #     if divident is Dividents.AND:
+    #         return all(contents)
+    #     else:
+    #         return any(contents)
 
     @staticmethod
-    def group(divident: Dividents = Dividents.OR, *contents: list[object]) -> bool:
-        if divident == Dividents.AND:
-            return all(contents)
-        elif divident == Dividents.OR:
-            return any(contents)
-
-    @staticmethod
-    def datepart(divident: str, dtpart: str, *args: int) -> bool:
-        _arg = [args] if len(args) > 1 else args[0]
-        _divident = QueryService.LOGIC[divident](
-            QueryService.DATETIMEPARTS[dtpart](QueryService.MOCKDT), 
+    def datepart(logic: str, dtpart: str, args: list[int]) -> bool:
+        _arg = args if len(args) > 1 else args[0]
+        _logic = QueryService.LOGIC[logic](
+            QueryService.DATETIMEPARTS[dtpart](QueryService.DT), 
             _arg
             )
-        return _divident
+        return _logic
 
-    MOCKDT = datetime.now()
     AND = "AND"
     OR = "OR"
     LOGIC = {
@@ -99,34 +114,37 @@ class PeaksModel:
         self.p = {}
 
 
-QueryService.MOCKDT = datetime(2022, 6, 15, 19,10,0)
-test = QueryService.query(
-                    QueryService.group(
-                        Dividents.AND,
-                        QueryService.datepart("gteq", "hour", 7),
-                        QueryService.datepart("lteq", "hour", 18),
-                        QueryService.datepart("lteq", "weekday", 4)
-                        )
-                    )
+# QueryService.MOCKDT = datetime(2022, 5, 11, 18,10,0)
+# # test = QueryService(
+# #                     QueryService.group(
+# #                         Dividents.AND,
+# #                         QueryService.datepart("gteq", "hour", 7),
+# #                         QueryService.datepart("lteq", "hour", 18),
+# #                         QueryService.datepart("lteq", "weekday", 4)
+# #                         )
+# #                     )
+
+# test2 =  QueryService(
+#                         QueryService.group(
+#                             Dividents.AND,
+#                             QueryService.datepart("lteq", "weekday", 4),
+#                             QueryService.datepart("in", "hour", 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
+#                             QueryService.datepart("in", "month", 12, 1, 2, 3)
+#                         ),
+#                         QueryService.group(
+#                             Dividents.OR,
+#                             QueryService.datepart("in", "month", 4, 5, 6, 7, 8, 9, 10, 11)
+#                     )
+#                 )
+
+# #print(f" test: {test.should_register_peak}")
+# print(f" test2: {test2.should_register_peak}")
+# print(QueryService.MOCKDT)
+# print(QueryService.MOCKDT.weekday())
+# print(QueryService.MOCKDT.month)
+# print(QueryService.MOCKDT.hour)
 
 
-test2 =  QueryService.query(
-                        QueryService.group(
-                            Dividents.AND,
-                            QueryService.datepart("lteq", "weekday", 4),
-                            QueryService.AND,
-                            QueryService.datepart("in", "hour", 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
-                            QueryService.AND,
-                            QueryService.datepart("in", "month", 12, 1, 2, 3)
-                        ),
-                        QueryService.group(
-                        QueryService.datepart("in", "month", 4, 5, 6, 7, 8, 9, 10, 11)
-                    )
-                )
 
-assert test == False
 
-print(test2)
 
-# print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
-# print(QueryService.DATETIMEPARTS["month"](datetime.now()))

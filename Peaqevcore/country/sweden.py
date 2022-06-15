@@ -1,3 +1,4 @@
+from datetime import date, datetime, time
 from ..locale.querytypes.const import (
     QUERYTYPE_AVERAGEOFFIVEDAYS, 
     QUERYTYPE_AVERAGEOFFIVEDAYS_MIN, 
@@ -22,6 +23,8 @@ from ..locale.locale_model import Locale_Type
 class SE_Sollentuna(Locale_Type):
     observed_peak = QUERYTYPE_SOLLENTUNA_MIN
     charged_peak = QUERYTYPE_SOLLENTUNA
+    converted = True
+    query_model = QUERYTYPES[QUERYTYPE_SOLLENTUNA]
     free_charge_pattern = [
         {
             "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -38,7 +41,6 @@ class SE_Sollentuna(Locale_Type):
     #Rörlig avgift sommar april – oktober 61,46 kr/kW
     #Rörlig avgift vinter november – mars 122,92 kr/kW
     #https://www.seom.se/el/elnat/2022-ars-priser-och-villkor/
-
 
 @dataclass(frozen=True)
 class SE_Skovde(Locale_Type):

@@ -29,7 +29,7 @@ class LocaleQuery:
         timecalc: TimePeriods, 
         cycle: TimePeriods, 
         sumcounter: SumCounter = None,
-        queryservice: QueryService = None
+        queryservice: QueryService = QueryService()
         ) -> None:    
         self._peaks:PeaksModel = PeaksModel({})
         self._props = QueryProperties(
@@ -92,8 +92,9 @@ class LocaleQuery:
     def observed_peak(self, val):
         self._observed_peak_value = val
 
-    def try_update(self, newval, dt = datetime.now()):
-        if self._props.queryservice.query() is False:
+    def try_update(self, newval, dt:datetime = datetime.now()):
+        if self._props.queryservice.should_register_peak(dt=dt) is False:
+            print("hej")
             return
         if self.peaks.is_dirty:
             self._sanitize_values()
@@ -164,7 +165,7 @@ QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
     QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily)),
-    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryparams=QUERYSETS[QUERYTYPE_SOLLENTUNA])
+    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryservice=QueryService(QUERYSETS[QUERYTYPE_SOLLENTUNA]))
 }
 
 

@@ -1,9 +1,9 @@
 from datetime import datetime, date, time
 import pytest
 
-from ..locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS
+from ..locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPE_SOLLENTUNA
 from ..locale.querytypes.querytypes import QUERYTYPES
-from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg
+from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Sollentuna
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi
@@ -87,11 +87,29 @@ def test_SE_Gothenburg():
     assert p.query_model.observed_peak > 0
     del(p)
 
-def test_generic_querytype_avg_threehours():
-    p2 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEHOURS]
-    p2.try_update(newval=1.2, dt=datetime.combine(date(2022, 7, 14), time(20, 30)))
-    p2.try_update(newval=2, dt=datetime.combine(date(2022, 7, 14), time(21, 30)))
-    assert len(p2._peaks.p) == 2
-    del(p2)
+# def test_generic_querytype_avg_threehours():
+#     p2 = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEHOURS]
+#     p2.try_update(newval=1.2, dt=datetime.combine(date(2022, 7, 14), time(20, 30)))
+#     p2.try_update(newval=2, dt=datetime.combine(date(2022, 7, 14), time(21, 30)))
+#     assert len(p2._peaks.p) == 2
+#     del(p2)
 
+def test_generic_querytype_avg_threehour2s():
+    p = SE_Sollentuna
+    assert p.converted
+    # p.query_model.try_update(newval=1.2, dt=datetime.combine(date(2022, 7, 14), time(22, 30)))
+    # p.query_model.try_update(newval=1, dt=datetime.combine(date(2022, 7, 16), time(22, 30)))
+    # p.query_model.try_update(newval=1.5, dt=datetime.combine(date(2022, 7, 17), time(22, 30)))
+    # p.query_model.try_update(newval=1.7, dt=datetime.combine(date(2022, 7, 17), time(22, 30)))
+    # p.query_model.try_update(newval=1.5, dt=datetime.combine(date(2022, 7, 19), time(22, 30)))
+    #assert p.query_model.observed_peak == 0
+    p.query_model.try_update(newval=1.5, dt=datetime.combine(date(2022, 6, 15), time(15, 30)))
+    assert p.query_model.observed_peak == 1.5
+    del(p)
 
+    # p2 = QUERYTYPES[QUERYTYPE_SOLLENTUNA]
+    # p2.try_update(newval=1.2, dt=datetime.combine(date(2022, 7, 14), time(15, 30)))
+    # p2.try_update(newval=2, dt=datetime.combine(date(2022, 7, 14), time(20, 30)))
+    # p2.try_update(newval=2, dt=datetime.combine(date(2022, 7, 14), time(21, 30)))
+    # assert len(p2._peaks.p) == 1
+    # del(p2)
