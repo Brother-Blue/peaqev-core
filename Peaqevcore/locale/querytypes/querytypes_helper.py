@@ -22,7 +22,7 @@ class QueryService:
         return all(params)
 
     @staticmethod
-    def group(divident: Dividents, *contents: list[object]) -> bool:
+    def group(divident: Dividents = Dividents.OR, *contents: list[object]) -> bool:
         if divident == Dividents.AND:
             return all(contents)
         elif divident == Dividents.OR:
@@ -45,7 +45,7 @@ class QueryService:
         "not": lambda a, dtp : dtp != a,
         "lteq": lambda a, dtp : a <= dtp,
         "gteq": lambda a, dtp : a >= dtp,
-        "in": lambda a, dtp : dtp in a
+        "in": lambda a, dtp : a in dtp
     }
     DATETIMEPARTS = {
         "weekday": lambda d : d.weekday(),
@@ -114,7 +114,24 @@ test = QueryService.query(
                         )
                     )
 
-print(test)
+
+test2 =  QueryService.query(
+                        QueryService.group(
+                            Dividents.AND,
+                            QueryService.datepart("lteq", "weekday", 4),
+                            QueryService.AND,
+                            QueryService.datepart("in", "hour", 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
+                            QueryService.AND,
+                            QueryService.datepart("in", "month", 12, 1, 2, 3)
+                        ),
+                        QueryService.group(
+                        QueryService.datepart("in", "month", 4, 5, 6, 7, 8, 9, 10, 11)
+                    )
+                )
+
+assert test == False
+
+print(test2)
 
 # print(QueryService.LOGIC["in"](datetime.now().year, [2022]))
 # print(QueryService.DATETIMEPARTS["month"](datetime.now()))
