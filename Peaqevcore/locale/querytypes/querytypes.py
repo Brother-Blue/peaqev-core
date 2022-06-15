@@ -29,14 +29,14 @@ class LocaleQuery:
         timecalc: TimePeriods, 
         cycle: TimePeriods, 
         sumcounter: SumCounter = None,
-        queryparams: QueryService = None
+        queryservice: QueryService = None
         ) -> None:    
         self._peaks:PeaksModel = PeaksModel({})
         self._props = QueryProperties(
             sumtype, 
             timecalc, 
             cycle,
-            queryparams
+            queryservice
             )
         self._sumcounter:SumCounter= sumcounter
         self._observed_peak_value:float = 0 
@@ -93,6 +93,8 @@ class LocaleQuery:
         self._observed_peak_value = val
 
     def try_update(self, newval, dt = datetime.now()):
+        if self._props.queryservice.query() is False:
+            return
         if self.peaks.is_dirty:
             self._sanitize_values()
         _dt = (dt.day, dt.hour)

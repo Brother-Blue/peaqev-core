@@ -10,6 +10,8 @@ class Dividents(Enum):
 class QueryService:
     @staticmethod
     def query(*params) -> bool:
+        if len(params) == 0: 
+            return True
         return all(params)
 
     @staticmethod
@@ -70,7 +72,7 @@ class QueryProperties:
     sumtype: SumTypes
     timecalc:TimePeriods
     cycle: TimePeriods
-    queryparams: QueryHelper
+    queryservice: QueryService
 
 @dataclass
 class PeaksModel:
