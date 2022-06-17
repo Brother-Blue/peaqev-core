@@ -1,4 +1,3 @@
-from datetime import date, datetime, time
 from ..locale.querytypes.const import (
     QUERYTYPE_AVERAGEOFFIVEDAYS, 
     QUERYTYPE_AVERAGEOFFIVEDAYS_MIN, 
@@ -180,6 +179,7 @@ class SE_Gothenburg(Locale_Type):
 class SE_Bjerke_Energi(Locale_Type):
     observed_peak = QUERYTYPE_BASICMAX
     charged_peak = QUERYTYPE_BASICMAX
+    converted = True
     free_charge_pattern = [
         {
             "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
