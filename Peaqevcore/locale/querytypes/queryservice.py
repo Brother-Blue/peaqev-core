@@ -3,14 +3,10 @@ from .models.enums import Dividents
 from .models.queryservice_model import queryservicemodel as model
 
 class QueryService:
-    # DT: datetime = datetime.now()timer
     def __init__(self, args:model = model()):
         self._settings = args
     
     def should_register_peak(self, dt:datetime) -> bool:
-        # print(dt)
-        # self.DT = dt
-        # print(self.DT)
         mainret = []
         maingrouping = (s for s in self._settings.groups if s.divident is not Dividents.UNSET)
         print("hej2")
