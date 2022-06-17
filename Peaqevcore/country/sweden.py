@@ -45,6 +45,8 @@ class SE_Sollentuna(Locale_Type):
 class SE_Skovde(Locale_Type):
     observed_peak = QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22
     charged_peak = QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22
+    query_model= QUERYTYPES[QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22]
+    converted= True
     free_charge_pattern = [
         {
             "M": [11, 12, 1, 2, 3],

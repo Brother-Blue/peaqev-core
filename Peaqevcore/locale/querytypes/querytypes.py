@@ -6,15 +6,12 @@ from .const import (
     QUERYTYPE_AVERAGEOFTHREEDAYS,
     QUERYTYPE_BASICMAX,
     QUERYTYPE_AVERAGEOFFIVEDAYS,
+    QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22,
     QUERYTYPE_SOLLENTUNA
     )
-from .queryservice import (
-    QueryService, 
-    TimePeriods
-    )
-
+from .queryservice import QueryService
 from .models.peaks_model import PeaksModel
-from .models.enums import SumTypes
+from .models.enums import SumTypes, TimePeriods
 from .models.sumcounter import SumCounter
 from .models.queryproperties import QueryProperties
 
@@ -93,20 +90,19 @@ class LocaleQuery:
     def observed_peak(self, val):
         self._observed_peak_value = val
 
-    def try_update(self, newval, dt:datetime = datetime.now()):
-        if self._props.queryservice.should_register_peak(dt=dt) is False:
-            print("hej")
+    def try_update(self, newval, timestamp:datetime = datetime.now()):
+        if self._props.queryservice.should_register_peak(dt=timestamp) is False:
             return
         if self.peaks.is_dirty:
             self._sanitize_values()
-        _dt = (dt.day, dt.hour)
+        _dt = (timestamp.day, timestamp.hour)
         if len(self.peaks.p) == 0:
             """first addition for this month"""
             self._peaks.p[_dt] = newval
-            self._peaks.m = dt.month
-        elif dt.month != self._peaks.m:
+            self._peaks.m = timestamp.month
+        elif timestamp.month != self._peaks.m:
             """new month, reset"""
-            self.reset_values(newval, dt)
+            self.reset_values(newval, timestamp)
         else:
             self._set_update_for_groupby(newval, _dt)
         if len(self.peaks.p) > self.sumcounter.counter:
@@ -166,7 +162,8 @@ QUERYTYPES = {
     QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
     QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
     QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily)),
-    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryservice=QueryService(QUERYSETS[QUERYTYPE_SOLLENTUNA]))
+    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryservice=QueryService(QUERYSETS[QUERYTYPE_SOLLENTUNA])),
+    QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, queryservice=QueryService(QUERYSETS[QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22]))
 }
 
 
