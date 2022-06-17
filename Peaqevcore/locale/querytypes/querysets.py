@@ -1,6 +1,7 @@
 from .models.queryservice_model import queryservicemodel, group, datepart_model
 from .const import (
     QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19,
+    QUERYTYPE_HIGHLOAD,
     QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22,
     QUERYTYPE_SOLLENTUNA,
     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
@@ -45,6 +46,14 @@ QUERYSETS = {
         group(divident=Dividents.OR, dateparts=[
             datepart_model(type="in", dttype="month", values=[4, 5, 6, 7, 8, 9, 10, 11])
             ])
+    ]
+    ),
+    QUERYTYPE_HIGHLOAD: queryservicemodel(
+        [group(divident=Dividents.AND, dateparts=[
+            datepart_model(type="in", dttype="hour", values=[8, 9, 10, 11, 12, 13, 14, 15, 16,17,18]),
+            datepart_model(type="lteq", dttype="weekday", values=[4])
+        ]
+        )
     ]
     )
 }
