@@ -3,7 +3,7 @@ import pytest
 
 from ..locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPE_SOLLENTUNA
 from ..locale.querytypes.querytypes import QUERYTYPES
-from ..country.sweden import SE_Bjerke_Energi, SE_Gothenburg, SE_Skovde, SE_Sollentuna
+from ..country.sweden import SE_SHE_AB, SE_Bjerke_Energi, SE_Gothenburg, SE_Skovde, SE_Sollentuna
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi
@@ -105,4 +105,11 @@ def test_SE_Skovde():
     p.query_model._props.queryservice.DT = datetime.combine(date(2022, 6, 14), time(20, 30))
     assert p.query_model.charged_peak == 0
     p.query_model.try_update(newval=1.2, timestamp=datetime.combine(date(2022, 2, 14), time(20, 30)))
+    assert p.query_model.charged_peak == 1.2
+
+def test_SE_SHE_AB():
+    p = SE_SHE_AB
+    p.query_model._props.queryservice.DT = datetime.combine(date(2022, 6, 14), time(20, 30))
+    assert p.query_model.charged_peak == 0
+    p.query_model.try_update(newval=1.2, timestamp=datetime.combine(date(2022, 2, 14), time(18, 30)))
     assert p.query_model.charged_peak == 1.2

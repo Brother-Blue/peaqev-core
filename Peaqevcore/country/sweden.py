@@ -68,6 +68,8 @@ class SE_Skovde(Locale_Type):
 class SE_SHE_AB(Locale_Type):    
     observed_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19_MIN
     charged_peak = QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19
+    converted = True
+    query_model = QUERYTYPES[QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19]
     free_charge_pattern = [
         {
             "M": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
