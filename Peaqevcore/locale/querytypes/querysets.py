@@ -1,32 +1,20 @@
+from .models.queryservice_model import queryservicemodel, group, datepart_model
 from .const import (
     QUERYTYPE_SOLLENTUNA,
     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR
     )
-from .querytypes_helper import QueryService, Dividents
+from .queryservice import Dividents
 
 QUERYSETS = {
-    QUERYTYPE_SOLLENTUNA: [
-                            {
-                                "divident": Dividents.AND,
-                                "args": [
-                                {
-                                    "type": "lteq",
-                                    "dttype": "hour",
-                                    "values": [7]
-                                },
-                                {
-                                    "type": "lteq",
-                                    "dttype": "hour",
-                                    "values": [18]
-                                },
-                                {
-                                    "type": "lteq",
-                                    "dttype": "weekday",
-                                    "values": [4]
-                                }
-                                ]
-                            }
-                        ]
+    QUERYTYPE_SOLLENTUNA: queryservicemodel(
+    [group(divident=Dividents.AND, dateparts=[
+        datepart_model(type="gteq", dttype="hour", values=[7]),
+        datepart_model(type="lteq", dttype="hour", values=[18]),
+        datepart_model(type="lteq", dttype="weekday", values=[4])
+        ]
+        )
+    ]
+    )
 }
                         # ,
 #     QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR: 

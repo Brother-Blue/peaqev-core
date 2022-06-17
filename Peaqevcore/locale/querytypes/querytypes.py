@@ -8,14 +8,15 @@ from .const import (
     QUERYTYPE_AVERAGEOFFIVEDAYS,
     QUERYTYPE_SOLLENTUNA
     )
-from .querytypes_helper import (
+from .queryservice import (
     QueryService, 
-    QueryProperties, 
-    SumTypes, 
-    TimePeriods,  
-    SumCounter, 
-    PeaksModel
+    TimePeriods
     )
+
+from .models.peaks_model import PeaksModel
+from .models.enums import SumTypes
+from .models.sumcounter import SumCounter
+from .models.queryproperties import QueryProperties
 
 from .querysets import QUERYSETS
 
