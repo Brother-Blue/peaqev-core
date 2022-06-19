@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 import statistics as stat
 from datetime import datetime
+#import operator
 from .Models import (
     CAUTIONHOURTYPE_SUAVE,
     CAUTIONHOURTYPE_INTERMEDIATE,
@@ -8,23 +10,16 @@ from .Models import (
 )
 
 
+@dataclass
 class HourObject:
-    def __init__(self, nh:list, ch:list, dyn_ch:dict = {}) -> None:    
-        self._nh = nh
-        self._ch = ch
-        self._dyn_ch = dyn_ch
+    nh: list
+    ch: list
+    dyn_ch: dict
 
-    @property
-    def nh(self) -> list:
-        return self._nh
-    
-    @property
-    def ch(self) -> list:
-        return self._ch
 
-    @property
-    def dyn_ch(self) -> dict:
-        return self._dyn_ch
+@dataclass
+class HourObjectExtended(HourObject):
+    pricedict: dict
 
 
 class Hoursselectionbase:
@@ -32,7 +27,8 @@ class Hoursselectionbase:
             self,      
             absolute_top_price: float = 0,
             min_price: float = 0,
-            cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]
+            cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE],
+            allow_topup: bool = False
     ):
         self._prices = None
         self._prices_tomorrow = None
@@ -40,8 +36,9 @@ class Hoursselectionbase:
         self._caution_hours = []
         self._dynamic_caution_hours = {}
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
+        self._allow_topup = allow_topup,
         self._min_price = min_price
-        self._cautionhour_type = cautionhour_type
+        self._cautionhour_type = cautionhour_type,
         self._validate()
     
     def _set_absolute_top_price(self, val) -> float:
@@ -52,9 +49,13 @@ class Hoursselectionbase:
         return float(val)
 
     def _validate(self):
-        assert 0 < self._cautionhour_type <= 1
-        assert len(self._caution_hours) == 0
-        assert len(self._non_hours) == 0
+        try:
+            assert 0 < self._cautionhour_type <= 1
+            assert len(self._caution_hours) == 0
+            assert len(self._non_hours) == 0
+        except Exception as e:
+            print(self._cautionhour_type)
+            print(e)
 
     @property
     def non_hours(self):
@@ -107,33 +108,37 @@ class Hoursselectionbase:
         return self._min_price
 
     def update(self, testhour:int = None):
-        hours_today = self._update_internal(self.prices)
-        hours_tomorrow = self._update_internal(self.prices_tomorrow)
-        hour = datetime.now().hour if testhour is None else testhour
+        today_ready = self._update_per_day(self.prices)
+        hours_today = self._add_remove_limited_hours(today_ready)
+
+        if self.prices_tomorrow is not None:
+            tomorrow_ready = self._update_per_day(self.prices_tomorrow)
+            hours_tomorrow = self._add_remove_limited_hours(tomorrow_ready)
 
         self.non_hours = []
         self.caution_hours = []
         self.dynamic_caution_hours = {}
 
+        hour = datetime.now().hour if testhour is None else testhour
         self.non_hours.extend(h for h in hours_today.nh if h >= hour)
         self.caution_hours.extend(h for h in hours_today.ch if h >= hour)
-        self.non_hours.extend(h for h in hours_tomorrow.nh if h < hour)
-        self.caution_hours.extend(h for h in hours_tomorrow.ch if h < hour)
-
         for h in hours_today.dyn_ch:
             if h >= hour:
                 self._dynamic_caution_hours[h] = hours_today.dyn_ch[h]
+        if self.prices_tomorrow is not None:
+            self.non_hours.extend(h for h in hours_tomorrow.nh if h < hour)
+            self.caution_hours.extend(h for h in hours_tomorrow.ch if h < hour)
+            for h in hours_tomorrow.dyn_ch:
+                if h < hour:
+                    self._dynamic_caution_hours[h] = hours_tomorrow.dyn_ch[h]
+        #if self._allow_topup is True:
+            #self._set_top_up(hour)
 
-        for h in hours_tomorrow.dyn_ch:
-            if h < hour:
-                self._dynamic_caution_hours[h] = hours_tomorrow.dyn_ch[h]
-
-    def _update_internal(self, prices) -> HourObject:
-        ret = HourObject([], [], {})
+    def _update_per_day(self, prices) -> HourObjectExtended:
+        pricedict = dict
         if prices is not None and len(prices) > 1:
             pricedict = self._create_dict(prices)
             normalized_pricedict = self._create_dict(self._normalize_prices(prices))
-            
             """
             Curve is too flat if stdev is <= 0.05. 
             If so we don't do any specific non or caution-hours based on pricing.
@@ -141,15 +146,76 @@ class Hoursselectionbase:
             if stat.stdev(prices) > 0.05:
                 prices_ranked = self._rank_prices(pricedict, normalized_pricedict)
                 ready_hours = self._determine_hours(prices_ranked, prices)
-            else:
-                ready_hours = ret
-            if self._absolute_top_price is not None:
-                ret = self._add_expensive_non_hours(pricedict, ready_hours)
-            else: 
-                ret = ready_hours
-            if self._min_price > 0:
-                ret = self._remove_cheap_hours(pricedict, ret)
+                return HourObjectExtended(ready_hours.nh, ready_hours.ch, ready_hours.dyn_ch, pricedict)
+            return HourObjectExtended([], [], {}, pricedict)
+        
+    def _add_remove_limited_hours(self, hours: HourObjectExtended) -> HourObject:
+        """Removes cheap hours and adds expensive hours set by user limitation"""
+        if self._absolute_top_price is not None:
+                ret = self._add_expensive_non_hours(hours)
+        else: 
+            ret = HourObject(hours.nh, hours.ch, hours.dyn_ch)
+        if self._min_price > 0:
+            ret = self._remove_cheap_hours(hours)
         return ret
+
+    # def _set_top_up(self, testhour:int = None):
+    #     """Sets top-up if tomorrow is x more expensive than today and vice versa"""
+    #     def _create_partial_dict(input: list, hour:int, today:bool = True):
+    #         ret = {}
+    #         if today:
+    #             dictrange = range(hour-1,23)
+    #         else:
+    #             dictrange = range(0,hour-1)
+    #         assert len(dictrange) == len(input)
+            
+    #         for idx, val in enumerate(input):
+    #             ret[dictrange[idx]] = val
+    #         return ret
+
+    #     def _remove_and_add(removedict:dict, adddict:dict):
+    #         removed = 0
+    #         popkeys = []
+    #         for i in self.non_hours:
+    #             if i in removedict.keys():
+    #                 self.non_hours.remove(i)
+    #                 removed += 1
+    #         for i in self.caution_hours:
+    #             if i in removedict.keys():
+    #                 self.caution_hours.remove(i)
+    #                 removed += 1
+    #         for i in self.dynamic_caution_hours.keys():
+    #             if i in removedict.keys():
+    #                 popkeys.append(i)
+    #                 removed += 1
+    #         if len(popkeys) > 0:
+    #             for i in popkeys:
+    #                 self.dynamic_caution_hours.pop(i)
+    #         sorted_add = list(dict(sorted(adddict.items(), key=operator.itemgetter(1),reverse=True)).keys())
+    #         for i in range(0, removed-1):
+    #             try:
+    #                 if sorted_add[i] not in self.non_hours:
+    #                     self.non_hours.append(sorted_add[i])
+    #             except:
+    #                 continue
+    #             #     print(f"{sorted_add} i:{i}")
+
+
+    #     if self.prices_tomorrow is None:
+    #         return
+    #     hour = datetime.now().hour if testhour is None else testhour      
+    #     today = list(self.prices[hour-1:23])
+    #     tomorrow = list(self.prices_tomorrow[0:hour-1])
+    #     print(f"hour: {hour} today: {today}, tomorrow: {tomorrow}")
+    #     today_dict = _create_partial_dict(input=today, hour=hour, today=True)
+    #     tomorrow_dict = _create_partial_dict(input=tomorrow, hour=hour, today=False)
+
+    #     if max(today) < (sum(tomorrow)/len(tomorrow)):
+    #         _remove_and_add(today_dict, tomorrow_dict)
+    #     elif max(tomorrow) < (sum(today)/len(today)):
+    #         _remove_and_add(tomorrow_dict, today_dict)
+
+    #     self.non_hours.sort()
         
     def _normalize_prices(self, prices) -> list:
         min_price = min(prices)
@@ -158,27 +224,28 @@ class Hoursselectionbase:
             ret.append(p/min_price)
         return ret
 
-    def _remove_cheap_hours(self, hourdict: dict, hours: HourObject) -> HourObject:
-        lst = (h for h in hourdict if hourdict[h] < self._min_price)
+    def _remove_cheap_hours(self, hours: HourObjectExtended) -> HourObject:
+        lst = (h for h in hours.pricedict if hours.pricedict[h] < self._min_price)
         for h in lst:
             if h in hours.nh:
                 hours.nh.remove(h)
             elif h in hours.ch:
                 hours.ch.remove(h)
                 hours.dyn_ch.pop(h)    
-        return hours
+        return HourObject(hours.nh, hours.ch, hours.dyn_ch)
 
-    def _add_expensive_non_hours(self, hourdict: dict, readyhours:HourObject) -> HourObject:
-        lst = (h for h in hourdict if hourdict[h] >= self._absolute_top_price)
+    def _add_expensive_non_hours(self, readyhours:HourObjectExtended) -> HourObject:
+        lst = (h for h in readyhours.pricedict if readyhours.pricedict[h] >= self._absolute_top_price)
         for h in lst:
             if h not in readyhours.nh:
                 readyhours.nh.append(h)
                 if h in readyhours.ch:
                     readyhours.ch.remove(h)
-                if h in readyhours.dyn_ch.keys():
-                    readyhours.dyn_ch.pop(h)
+                if len(readyhours.dyn_ch) > 0:
+                    if h in readyhours.dyn_ch.keys():
+                        readyhours.dyn_ch.pop(h)
         readyhours.nh.sort()
-        return readyhours
+        return HourObject(readyhours.nh, readyhours.ch, readyhours.dyn_ch)
 
     def _rank_prices(self, hourdict: dict, normalized_hourdict: dict) -> dict:
         ret = {}

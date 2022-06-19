@@ -270,7 +270,8 @@ def test_cheap_today_expensive_tomorrow_top_up():
     r.prices = MOCKPRICES_CHEAP
     r.prices_tomorrow = MOCKPRICES_EXPENSIVE
     r.update(MOCKHOUR)
-    assert r.non_hours == [8]
+    assert r.non_hours == [8,9]
+    #19, 8, 8, 7, 9, 10, 11, 6, 12, 5
 
 def test_expensive_today_cheap_tomorrow_top_up():
     MOCKHOUR = 14
