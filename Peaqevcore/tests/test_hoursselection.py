@@ -1,5 +1,5 @@
 import pytest
-from ..hoursselection import Hoursselectionbase as h
+from ..hoursselection import HourSelectionHelpers, Hoursselectionbase as h
 from ..Models import (CAUTIONHOURTYPE_AGGRESSIVE, CAUTIONHOURTYPE_INTERMEDIATE, CAUTIONHOURTYPE_SUAVE, CAUTIONHOURTYPE)
 
 MOCKPRICES1 =[0.129, 0.123, 0.077, 0.064, 0.149, 0.172, 1, 2.572, 2.688, 2.677, 2.648, 2.571, 2.561, 2.07, 2.083, 2.459, 2.508, 2.589, 2.647, 2.648, 2.603, 2.588, 1.424, 0.595]
@@ -89,14 +89,14 @@ def test_cautionhour_negative_error():
 
 def test_create_dict():
     r = h()
-    ret = r._create_dict(MOCKPRICES1)
+    ret = HourSelectionHelpers._create_dict(MOCKPRICES1)
     assert ret[20] == 2.603
     assert len(ret) == 24
 
 def test_create_dict_error():
     r = h()
     with pytest.raises(ValueError):
-              r._create_dict(MOCKPRICES_SHORT)
+              HourSelectionHelpers._create_dict(MOCKPRICES_SHORT)
 
 # def test_rank_prices():
 #     r = h()
@@ -107,9 +107,9 @@ def test_create_dict_error():
 
 def test_rank_prices_permax():
     r = h()
-    hourly = r._create_dict(MOCKPRICES1)
-    norm_hourly = r._create_dict(r._normalize_prices(MOCKPRICES1))
-    ret = r._rank_prices(hourly, norm_hourly)
+    hourly = HourSelectionHelpers._create_dict(MOCKPRICES1)
+    norm_hourly = HourSelectionHelpers._create_dict(HourSelectionHelpers._normalize_prices(MOCKPRICES1))
+    ret = HourSelectionHelpers._rank_prices(hourly, norm_hourly)
     for r in ret:
         assert 0 <= ret[r]["permax"] <= 1
 
@@ -246,7 +246,7 @@ def test_total_charge_today_tomorrow():
     r.prices = MOCKPRICES1
     r.prices_tomorrow = MOCKPRICES2
     r.update(MOCKHOUR)
-    assert r.get_total_charge(2, MOCKHOUR) == 34.7
+    assert r.get_total_charge(2, MOCKHOUR) == 35
 
 def test_average_kwh_price_just_today():
     r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
@@ -261,7 +261,7 @@ def test_average_kwh_price_today_tomorrow():
     r.prices = MOCKPRICES1
     r.prices_tomorrow = MOCKPRICES2
     r.update(MOCKHOUR)
-    assert r.get_average_kwh_price(MOCKHOUR) == 0.56
+    assert r.get_average_kwh_price(MOCKHOUR) == 0.63
 
 
 def test_cheap_today_expensive_tomorrow_top_up():
@@ -270,8 +270,7 @@ def test_cheap_today_expensive_tomorrow_top_up():
     r.prices = MOCKPRICES_CHEAP
     r.prices_tomorrow = MOCKPRICES_EXPENSIVE
     r.update(MOCKHOUR)
-    assert r.non_hours == [8,9]
-    #19, 8, 8, 7, 9, 10, 11, 6, 12, 5
+    assert r.non_hours == [4, 5, 6, 7, 8,9,10,11,12,19]
 
 def test_expensive_today_cheap_tomorrow_top_up():
     MOCKHOUR = 14
@@ -279,4 +278,6 @@ def test_expensive_today_cheap_tomorrow_top_up():
     r.prices = MOCKPRICES_EXPENSIVE
     r.prices_tomorrow = MOCKPRICES_CHEAP
     r.update(MOCKHOUR)
+    print(r.non_hours)
+    print(r.dynamic_caution_hours)
     assert r.non_hours == [14,15,16,17,18,19,20,21,22,23]
