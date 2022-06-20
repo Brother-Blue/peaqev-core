@@ -15,7 +15,8 @@ class Hoursselectionbase:
             self,      
             absolute_top_price: float = 0,
             min_price: float = 0,
-            cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE]
+            cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE],
+            allow_top_up: bool = False
     ):
         self._prices = None
         self._prices_tomorrow = None
@@ -25,6 +26,7 @@ class Hoursselectionbase:
         self._absolute_top_price = self._set_absolute_top_price(absolute_top_price)
         self._cautionhour_type: float = cautionhour_type
         self._min_price: float = min_price
+        self._allow_top_up: bool = allow_top_up
         self._validate()
     
     def _set_absolute_top_price(self, val) -> float:
@@ -117,8 +119,8 @@ class Hoursselectionbase:
             for h in hours_tomorrow.dyn_ch:
                 if h < hour:
                     self._dynamic_caution_hours[h] = hours_tomorrow.dyn_ch[h]
-
-        self._set_top_up(hour)
+        if self._allow_top_up is True:
+            self._set_top_up(hour)
 
     def _update_per_day(self, prices) -> HourObjectExtended:
         pricedict = dict
