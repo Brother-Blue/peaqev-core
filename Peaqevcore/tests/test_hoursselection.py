@@ -247,7 +247,7 @@ def test_total_charge_today_tomorrow():
     r.prices = MOCKPRICES1
     r.prices_tomorrow = MOCKPRICES2
     r.update(MOCKHOUR)
-    assert r.get_total_charge(2, MOCKHOUR) == 35
+    assert r.get_total_charge(2, MOCKHOUR) == 34.7
 
 def test_average_kwh_price_just_today():
     r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
@@ -262,12 +262,12 @@ def test_average_kwh_price_today_tomorrow():
     r.prices = MOCKPRICES1
     r.prices_tomorrow = MOCKPRICES2
     r.update(MOCKHOUR)
-    assert r.get_average_kwh_price(MOCKHOUR) == 0.63
+    assert r.get_average_kwh_price(MOCKHOUR) == 0.56
 
 
 def test_cheap_today_expensive_tomorrow_top_up():
     MOCKHOUR = 14
-    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], allow_top_up=True)
     r.prices = MOCKPRICES_CHEAP
     r.prices_tomorrow = MOCKPRICES_EXPENSIVE
     r.update(MOCKHOUR)
@@ -275,7 +275,7 @@ def test_cheap_today_expensive_tomorrow_top_up():
 
 def test_expensive_today_cheap_tomorrow_top_up():
     MOCKHOUR = 14
-    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE])
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], allow_top_up=True)
     r.prices = MOCKPRICES_EXPENSIVE
     r.prices_tomorrow = MOCKPRICES_CHEAP
     r.update(MOCKHOUR)
@@ -285,7 +285,7 @@ def test_expensive_today_cheap_tomorrow_top_up():
 def test_EXPENSIVE_today_only():
     MOCKHOUR_YEST = 23
     MOCKHOUR = 7
-    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=0.0, min_price=0.5)
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=0.0, min_price=0.5, allow_top_up=True)
     r.prices = MOCKPRICES_CHEAP
     r.prices_tomorrow = MOCKPRICES_EXPENSIVE
     r.update(MOCKHOUR_YEST)
