@@ -279,6 +279,20 @@ def test_expensive_today_cheap_tomorrow_top_up():
     r.prices = MOCKPRICES_EXPENSIVE
     r.prices_tomorrow = MOCKPRICES_CHEAP
     r.update(MOCKHOUR)
-    print(r.non_hours)
-    print(r.dynamic_caution_hours)
     assert r.non_hours == [14,15,16,17,18,19,20,21,22,23]
+
+
+def test_EXPENSIVE_today_only():
+    MOCKHOUR_YEST = 23
+    MOCKHOUR = 7
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=0.0, min_price=0.5)
+    r.prices = MOCKPRICES_CHEAP
+    r.prices_tomorrow = MOCKPRICES_EXPENSIVE
+    r.update(MOCKHOUR_YEST)
+    assert r.get_average_kwh_price(MOCKHOUR_YEST) == 0.63
+    assert r.non_hours == [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    r.prices = MOCKPRICES_EXPENSIVE
+    r.update(MOCKHOUR)
+    assert r.non_hours == [8]
+    assert r.dynamic_caution_hours == {7: 0.41,9: 0.45,10: 0.53,11: 0.54,12: 0.62, 13: 0.72,14: 0.76,15: 0.78,16: 0.79,17: 0.75,18: 0.73, 19: 0.57, 20: 0.52, 21: 0.52, 22: 0.58, 23: 0.84}
+    

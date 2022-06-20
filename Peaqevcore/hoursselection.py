@@ -10,7 +10,6 @@ from .Models import (
 
 from .hourselection.hoursselection_helpers import HourObject, HourObjectExtended, HourSelectionHelpers
 
-
 class Hoursselectionbase:
     def __init__(
             self,      
@@ -71,7 +70,10 @@ class Hoursselectionbase:
     @prices.setter
     def prices(self, val):
         self._prices = val
-        self.update()
+        if self._prices == self.prices_tomorrow:
+            self.prices_tomorrow = None
+        else:
+            self.update()
 
     @property
     def prices_tomorrow(self) -> list:
@@ -94,9 +96,10 @@ class Hoursselectionbase:
         today_ready = self._update_per_day(self.prices)
         hours_today = self._add_remove_limited_hours(today_ready)
 
-        if self.prices_tomorrow is not None:
+        if self.prices_tomorrow is not None and len(self.prices_tomorrow) > 0:
             tomorrow_ready = self._update_per_day(self.prices_tomorrow)
-            hours_tomorrow = self._add_remove_limited_hours(tomorrow_ready)
+            if tomorrow_ready is not None:
+                hours_tomorrow = self._add_remove_limited_hours(tomorrow_ready)
 
         self.non_hours = []
         self.caution_hours = []
@@ -108,7 +111,7 @@ class Hoursselectionbase:
         for h in hours_today.dyn_ch:
             if h >= hour:
                 self._dynamic_caution_hours[h] = hours_today.dyn_ch[h]
-        if self.prices_tomorrow is not None:
+        if self.prices_tomorrow is not None and len(self.prices_tomorrow) > 0:
             self.non_hours.extend(h for h in hours_tomorrow.nh if h < hour)
             self.caution_hours.extend(h for h in hours_tomorrow.ch if h < hour)
             for h in hours_tomorrow.dyn_ch:
@@ -144,7 +147,7 @@ class Hoursselectionbase:
 
     def _set_top_up(self, hour:int):
         """Sets top-up if tomorrow is x more expensive than today and vice versa"""
-        if self.prices_tomorrow is None:
+        if self.prices_tomorrow is None or len(self.prices_tomorrow) == 0:
             return
 
         today = list(self.prices[hour-1:23])

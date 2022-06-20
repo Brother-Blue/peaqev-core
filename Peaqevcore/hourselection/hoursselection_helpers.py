@@ -36,8 +36,10 @@ class HourSelectionHelpers:
     
     @staticmethod
     def _convert_none_list(lst:list) -> list:
+        ret = []
+        if lst is None:
+            return ret
         try:
-            ret = []
             for l in lst:
                 if l is None:
                     return ret
