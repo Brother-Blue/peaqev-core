@@ -162,12 +162,18 @@ class Hoursselectionbase:
         tomorrow_dict = HourSelectionHelpers._create_partial_dict(input=tomorrow, hour=hour, today=False)
 
         if max(today) < (sum(tomorrow)/len(tomorrow)):
-            self._remove_and_add_for_top_up(today_dict, tomorrow_dict)
+            self._remove_and_add_for_top_up(today_dict, tomorrow_dict, max(today))
         elif max(tomorrow) < (sum(today)/len(today)):
-            self._remove_and_add_for_top_up(tomorrow_dict, today_dict)
-        self.non_hours.sort()
+            self._remove_and_add_for_top_up(tomorrow_dict, today_dict, max(tomorrow))
         
-    def _remove_and_add_for_top_up(self, removedict:dict, adddict:dict) -> int:
+        self.non_hours = list(set(self.non_hours))
+        self.non_hours.sort()
+        try:
+            self.dynamic_caution_hours = {key: value for (key, value) in self.dynamic_caution_hours.items() if key not in self.non_hours}
+        except Exception as e:
+            print(f"{e}: {self.dynamic_caution_hours}")
+        
+    def _remove_and_add_for_top_up(self, removedict:dict, adddict:dict, max_cheap:float) -> int:
         nonhours_remove = []
         cautionhours_remove = []
         removed = 0
@@ -202,14 +208,15 @@ class Hoursselectionbase:
         added = 0
         for i in range(0, removed-1):
             try:
-                if sorted_add[i] not in self.non_hours:
-                    self.non_hours.append(sorted_add[i])
-                    self.dynamic_caution_hours.pop(i)
-                    added += 1
-                elif sorted_add[i] in self.dynamic_caution_hours.items():
-                    self.non_hours.append(sorted_add[i])
-                    self.dynamic_caution_hours.pop(i)
-                    added += 1
+                if adddict[sorted_add[i]] > max_cheap:
+                    if sorted_add[i] not in self.non_hours:
+                        self.non_hours.append(sorted_add[i])
+                        self.dynamic_caution_hours.pop(i)
+                        added += 1
+                    if sorted_add[i] in self.dynamic_caution_hours.keys():
+                        self.non_hours.append(sorted_add[i])
+                        self.dynamic_caution_hours.pop(i)
+                        added += 1
             except:
                 continue
         if added == 0:
@@ -217,7 +224,7 @@ class Hoursselectionbase:
                 if a in self.dynamic_caution_hours.keys():
                     self.non_hours.append(a)
                     self.dynamic_caution_hours.pop(a)
-
+        
     def _remove_cheap_hours(self, hours: HourObjectExtended) -> HourObject:
         lst = (h for h in hours.pricedict if hours.pricedict[h] < self._min_price)
         for h in lst:
