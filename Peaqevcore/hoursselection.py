@@ -16,7 +16,8 @@ class Hoursselectionbase:
             absolute_top_price: float = 0,
             min_price: float = 0,
             cautionhour_type: float = CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE],
-            allow_top_up: bool = False
+            allow_top_up: bool = False,
+            base_mock_hour: int = None
     ):
         self._prices = None
         self._prices_tomorrow = None
@@ -27,6 +28,7 @@ class Hoursselectionbase:
         self._cautionhour_type: float = cautionhour_type
         self._min_price: float = min_price
         self._allow_top_up: bool = allow_top_up
+        self._base_mock_hour: int = base_mock_hour
         self._validate()
     
     def _set_absolute_top_price(self, val) -> float:
@@ -107,7 +109,7 @@ class Hoursselectionbase:
         self.caution_hours = []
         self.dynamic_caution_hours = {}
 
-        hour = datetime.now().hour if testhour is None else testhour
+        hour = testhour if testhour is not None else self._base_mock_hour if self._base_mock_hour is not None else datetime.now().hour
         self.non_hours.extend(h for h in hours_today.nh if h >= hour)
         self.caution_hours.extend(h for h in hours_today.ch if h >= hour)
         for h in hours_today.dyn_ch:
@@ -120,7 +122,9 @@ class Hoursselectionbase:
                 if h < hour:
                     self._dynamic_caution_hours[h] = hours_tomorrow.dyn_ch[h]
         if self._allow_top_up is True:
+            print(f"before: {self.non_hours}")
             self._set_top_up(hour)
+            print(f"after: {self.non_hours}")
 
     def _update_per_day(self, prices) -> HourObjectExtended:
         pricedict = dict
@@ -154,54 +158,65 @@ class Hoursselectionbase:
 
         today = list(self.prices[hour-1:23])
         tomorrow = list(self.prices_tomorrow[0:hour-1])
-        print(f"hour: {hour} today: {today}, tomorrow: {tomorrow}")
         today_dict = HourSelectionHelpers._create_partial_dict(input=today, hour=hour, today=True)
         tomorrow_dict = HourSelectionHelpers._create_partial_dict(input=tomorrow, hour=hour, today=False)
 
         if max(today) < (sum(tomorrow)/len(tomorrow)):
-           self._remove_and_add_for_top_up(today_dict, tomorrow_dict)
+            self._remove_and_add_for_top_up(today_dict, tomorrow_dict)
         elif max(tomorrow) < (sum(today)/len(today)):
-           self._remove_and_add_for_top_up(tomorrow_dict, today_dict)
+            self._remove_and_add_for_top_up(tomorrow_dict, today_dict)
         self.non_hours.sort()
         
     def _remove_and_add_for_top_up(self, removedict:dict, adddict:dict) -> int:
-            removed = 0
-            popkeys = []
-            for i in self.non_hours:
+        nonhours_remove = []
+        cautionhours_remove = []
+        removed = 0
+        popkeys = []
+
+        def _append_items(looplist: list, appendlist:list) -> int:
+            _removed = 0
+            for i in looplist:
                 if i in removedict.keys():
-                    self.non_hours.remove(i)
-                    removed += 1
-            for i in self.caution_hours:
-                if i in removedict.keys():
-                    self.caution_hours.remove(i)
-                    removed += 1
-            for k,v in self.dynamic_caution_hours.items():
-                if k in removedict.keys():
-                    popkeys.append(k)
-                    removed += 1
-            if len(popkeys) > 0:
-                for i in popkeys:
+                    appendlist.append(i)
+                    _removed += 1
+            return _removed
+        
+        def _remove_items(checklist: list, deletelist: list):
+            if len(checklist) > 0:
+                for i in checklist:
+                    deletelist.remove(i)
+
+        removed += _append_items(self.non_hours, nonhours_remove)
+        removed += _append_items(self.caution_hours, cautionhours_remove)
+        for k,v in self.dynamic_caution_hours.items():
+            if k in removedict.keys():
+                popkeys.append(k)
+                removed += 1
+        if len(popkeys) > 0:
+            for i in popkeys:
+                self.dynamic_caution_hours.pop(i)
+        _remove_items(nonhours_remove, self.non_hours)
+        _remove_items(cautionhours_remove, self.caution_hours)
+        
+        sorted_add = list(dict(sorted(adddict.items(), key=operator.itemgetter(1),reverse=True)).keys())
+        added = 0
+        for i in range(0, removed-1):
+            try:
+                if sorted_add[i] not in self.non_hours:
+                    self.non_hours.append(sorted_add[i])
                     self.dynamic_caution_hours.pop(i)
-            
-            sorted_add = list(dict(sorted(adddict.items(), key=operator.itemgetter(1),reverse=True)).keys())
-            added = 0
-            for i in range(0, removed-1):
-                try:
-                    if sorted_add[i] not in self.non_hours:
-                        self.non_hours.append(sorted_add[i])
-                        self.dynamic_caution_hours.pop(i)
-                        added += 1
-                    elif sorted_add[i] in self.dynamic_caution_hours.items():
-                        self.non_hours.append(sorted_add[i])
-                        self.dynamic_caution_hours.pop(i)
-                        added += 1
-                except:
-                    continue
-            if added == 0:
-                for a in adddict:
-                    if a in self.dynamic_caution_hours.keys():
-                        self.non_hours.append(a)
-                        self.dynamic_caution_hours.pop(a)
+                    added += 1
+                elif sorted_add[i] in self.dynamic_caution_hours.items():
+                    self.non_hours.append(sorted_add[i])
+                    self.dynamic_caution_hours.pop(i)
+                    added += 1
+            except:
+                continue
+        if added == 0:
+            for a in adddict:
+                if a in self.dynamic_caution_hours.keys():
+                    self.non_hours.append(a)
+                    self.dynamic_caution_hours.pop(a)
 
     def _remove_cheap_hours(self, hours: HourObjectExtended) -> HourObject:
         lst = (h for h in hours.pricedict if hours.pricedict[h] < self._min_price)
