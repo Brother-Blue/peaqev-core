@@ -5,13 +5,13 @@ class ThresholdBase:
 
     @staticmethod
     def stop(
-              nowmin:int,
-              is_cautionhour:bool,
-              is_quarterly:bool=False
+              now_min: int,
+              is_caution_hour: bool,
+              is_quarterly: bool=False
               ) -> float:
-        minute = _convert_quarterly_minutes(nowmin, is_quarterly)
+        minute = _convert_quarterly_minutes(now_min, is_quarterly)
         
-        if is_cautionhour is True and minute < 45:
+        if is_caution_hour and minute < 45:
             ret = (((minute+pow(1.075, minute)) * 0.0032) + 0.7)
         else:
             ret = (((minute + pow(1.071, minute)) * 0.00165) + 0.8)
@@ -19,36 +19,36 @@ class ThresholdBase:
 
     @staticmethod
     def start(
-               nowmin: int,
-               is_cautionhour: bool,
+               now_min: int,
+               is_caution_hour: bool,
                is_quarterly:bool=False
                ) -> float:
-        minute = _convert_quarterly_minutes(nowmin, is_quarterly)
-        if is_cautionhour is True and minute < 45:
+        minute = _convert_quarterly_minutes(now_min, is_quarterly)
+        if is_caution_hour and minute < 45:
             ret = (((minute+pow(1.081, minute)) * 0.0049) + 0.4)
         else:
             ret = (((minute + pow(1.066, minute)) * 0.0045) + 0.5)
         return round(ret * 100, 2)
     
     @staticmethod
-    def allowedcurrent(
-            nowmin: int,
-            movingavg: float,
+    def allowed_current(
+            now_min: int,
+            moving_avg: float,
             charger_enabled: bool,
             charger_done: bool,
-            currentsdict: dict,
-            totalenergy: float,
+            currents_dict: dict,
+            total_energy: float,
             peak: float,
             is_quarterly:bool=False
             ) -> int:
-        minute = _convert_quarterly_minutes(nowmin, is_quarterly)
+        minute = _convert_quarterly_minutes(now_min, is_quarterly)
         ret = ThresholdBase.BASECURRENT
-        if charger_enabled is False or charger_done is True or movingavg == 0:
+        if not charger_enabled or charger_done or moving_avg == 0:
             return ret
-        currents = currentsdict
+        currents = currents_dict
         for key, value in currents.items():
-            if ((((movingavg + key) / 60) * (60 - minute) + totalenergy * 1000) / 1000) < peak:
+            if ((((moving_avg + key) / 60) * (60 - minute) + total_energy * 1000) / 1000) < peak:
                 ret = value
-                break
+                return ret
         return ret
     

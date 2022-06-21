@@ -31,37 +31,37 @@ def test_stop_caution_non_caution_early():
     assert ret > ret2
     
 def test_allowed_current_base():
-    ret = t.allowedcurrent(
-        nowmin=0,
-        movingavg=1,
+    ret = t.allowed_current(
+        now_min=0,
+        moving_avg=1,
         charger_enabled=False,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=0,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=0,
         peak=1
     )
     assert ret == t.BASECURRENT
 
 def test_allowed_current_1():
-    ret = t.allowedcurrent(
-        nowmin=10,
-        movingavg=560,
+    ret = t.allowed_current(
+        now_min=10,
+        moving_avg=560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=0.3,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=0.3,
         peak=10
     )
     assert ret == 16
 
 def test_allowed_current_2():
-    ret = t.allowedcurrent(
-        nowmin=50,
-        movingavg=560,
+    ret = t.allowed_current(
+        now_min=50,
+        moving_avg=560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=0.3,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=0.3,
         peak=10
     )
     assert ret == 32
