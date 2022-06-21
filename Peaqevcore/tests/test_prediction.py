@@ -3,20 +3,20 @@ import pytest
 
 def test_prediction():
        ret = p.predictedenergy(
-       nowmin=13,
-       nowsec=37,
-       poweravg=420,
-       totalhourlyenergy=0.24
+       now_min=13,
+       now_sec=37,
+       power_avg=420,
+       total_hourly_energy=0.24
        )
 
        assert ret == 0.565
 
 def test_prediction_percentage():
        ret = p.predictedenergy(
-       nowmin=13,
-       nowsec=37,
-       poweravg=420,
-       totalhourlyenergy=0.24
+       now_min=13,
+       now_sec=37,
+       power_avg=420,
+       total_hourly_energy=0.24
        )
        retperc = p.predictedpercentageofpeak(2, ret)
 
@@ -25,66 +25,66 @@ def test_prediction_percentage():
 def test_prediction_minute_overflow():
        with pytest.raises(ValueError):
               p.predictedenergy(
-              nowmin=60,
-              nowsec=37,
-              poweravg=420,
-              totalhourlyenergy=0.24)
+              now_min=60,
+              now_sec=37,
+              power_avg=420,
+              total_hourly_energy=0.24)
 
 def test_prediction_second_overflow():
        with pytest.raises(ValueError):
               p.predictedenergy(
-              nowmin=50,
-              nowsec=60,
-              poweravg=420,
-              totalhourlyenergy=0.24)
+              now_min=50,
+              now_sec=60,
+              power_avg=420,
+              total_hourly_energy=0.24)
 
 def test_prediction_hour_overflow():
        with pytest.raises(ValueError):
               p.predictedenergy(
-              nowmin=-5,
-              nowsec=37,
-              poweravg=420,
-              totalhourlyenergy=0.24)
+              now_min=-5,
+              now_sec=37,
+              power_avg=420,
+              total_hourly_energy=0.24)
 
 def test_prediction_second_negative():
        with pytest.raises(ValueError):
               p.predictedenergy(
-              nowmin=50,
-              nowsec=-2,
-              poweravg=420,
-              totalhourlyenergy=0.24)
+              now_min=50,
+              now_sec=-2,
+              power_avg=420,
+              total_hourly_energy=0.24)
 
 def test_prediction_hourlyenergy_negative():
        with pytest.raises(ValueError):
               p.predictedenergy(
-              nowmin=50,
-              nowsec=4,
-              poweravg=420,
-              totalhourlyenergy=-0.24)
+              now_min=50,
+              now_sec=4,
+              power_avg=420,
+              total_hourly_energy=-0.24)
 
 
 def test_prediction_quarterly():
        ret = p.predictedenergy(
-       nowmin=13,
-       nowsec=37,
-       poweravg=420,
-       totalhourlyenergy=0.24,
+       now_min=13,
+       now_sec=37,
+       power_avg=420,
+       total_hourly_energy=0.24,
        is_quarterly=True
        )
 
        ret2 = p.predictedenergy(
-       nowmin=28,
-       nowsec=37,
-       poweravg=420,
-       totalhourlyenergy=0.24,
+       now_min=28,
+       now_sec=37,
+       power_avg=420,
+       total_hourly_energy=0.24,
        is_quarterly=True
        )
 
        ret3 = p.predictedenergy(
-       nowmin=28,
-       nowsec=0,
-       poweravg=420,
-       totalhourlyenergy=0.24,
+       now_min=28,
+       now_sec=0,
+       power_avg=420,
+       total_hourly_energy=0.24,
        is_quarterly=True
        )
 
