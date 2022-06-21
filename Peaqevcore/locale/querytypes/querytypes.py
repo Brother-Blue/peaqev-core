@@ -114,10 +114,10 @@ class LocaleQuery:
 
     def _set_update_for_groupby(self, newval, _dt):
         if self.sumcounter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekey = [k for k,v in self.peaks.p.items() if _dt[0] in k]
-            if len(_datekey) > 0:
-                if newval > self.peaks.p[_datekey[0]]:
-                        self.peaks.p.pop(_datekey[0])
+            _datekeys = [k for k,v in self.peaks.p.items() if _dt[0] in k]
+            if len(_datekeys) > 0:
+                if newval > self.peaks.p[_datekeys[0]]:
+                        self.peaks.p.pop(_datekeys[0])
                         self.peaks.p[_dt] = newval
             else:
                 self.peaks.p[_dt] = newval

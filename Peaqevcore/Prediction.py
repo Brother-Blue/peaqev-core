@@ -13,12 +13,12 @@ class PredictionBase:
             raise ValueError
         if nowsec not in range(0, 60):
             raise ValueError
-        if poweravg < 0 or totalhourlyenergy < 0:
-            raise ValueError
+        # if poweravg < 0 or totalhourlyenergy < 0:
+        #     raise ValueError
 
         minute = _convert_quarterly_minutes(nowmin, is_quarterly)
 
-        if totalhourlyenergy > 0 and (minute > 0 or (minute + nowsec) > 30):
+        if totalhourlyenergy != 0 and (minute > 0 or (minute + nowsec) > 30):
             ret = (((poweravg / 60 / 60) * (3600 - ((minute * 60) + nowsec)) + totalhourlyenergy * 1000) / 1000)
         else:
             ret = poweravg / 1000
