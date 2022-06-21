@@ -1,5 +1,5 @@
-from ..Threshold import ThresholdBase as t
-from ..Models import CURRENTS_THREEPHASE_1_32
+from ..threshold_service.threshold import ThresholdBase as t
+from ..models.const import CURRENTS_THREEPHASE_1_32
 import pytest
 
 def test_start():
@@ -82,3 +82,40 @@ def test_stop_quarterly():
 def test_stop_quarterly_caution():
     ret = t.start(22, True, True)
     assert ret == 58.06
+
+
+def test_allowed_current_negative_movingavg():
+    ret = t.allowedcurrent(
+        nowmin=10,
+        movingavg=-560,
+        charger_enabled=True,
+        charger_done=False,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
+        totalenergy=0.3,
+        peak=10
+    )
+    assert ret == 16
+
+def test_allowed_current_negative_totalenergy():
+    ret = t.allowedcurrent(
+        nowmin=10,
+        movingavg=560,
+        charger_enabled=True,
+        charger_done=False,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
+        totalenergy=-0.3,
+        peak=10
+    )
+    assert ret == 16
+
+def test_allowed_current_negative_totalenergy_and_movingavg():
+    ret = t.allowedcurrent(
+        nowmin=10,
+        movingavg=-1560,
+        charger_enabled=True,
+        charger_done=False,
+        currentsdict=CURRENTS_THREEPHASE_1_32,
+        totalenergy=-0.3,
+        peak=10
+    )
+    assert ret == 20

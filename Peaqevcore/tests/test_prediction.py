@@ -1,4 +1,4 @@
-from ..Prediction import PredictionBase as p
+from ..prediction_service.prediction import PredictionBase as p
 import pytest
 
 def test_prediction():
@@ -90,3 +90,36 @@ def test_prediction_quarterly():
 
        assert ret == ret2
        assert ret < ret3
+
+def test_prediction_percentage_neg_poweravg():
+       ret = p.predictedenergy(
+       nowmin=13,
+       nowsec=37,
+       poweravg=-420,
+       totalhourlyenergy=0.24
+       )
+       retperc = p.predictedpercentageofpeak(2, ret)
+
+       assert retperc >= 0
+
+def test_prediction_percentage_neg_energy():
+       ret = p.predictedenergy(
+       nowmin=13,
+       nowsec=37,
+       poweravg=-420,
+       totalhourlyenergy=-0.24
+       )
+       retperc = p.predictedpercentageofpeak(2, ret)
+
+       assert retperc >= 0
+
+def test_prediction_percentage_neg_energy_and_poweravg():
+       ret = p.predictedenergy(
+       nowmin=13,
+       nowsec=37,
+       poweravg=-420,
+       totalhourlyenergy=-0.24
+       )
+       retperc = p.predictedpercentageofpeak(2, ret)
+
+       assert retperc >= 0
