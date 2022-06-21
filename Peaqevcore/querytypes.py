@@ -49,8 +49,8 @@ class SumCounter:
 
 @dataclass(frozen=True)
 class QueryProperties:
-    sumtype: SumTypes
-    timecalc:TimePeriods
+    sum_type: SumTypes
+    time_calc: TimePeriods
     cycle: TimePeriods
 
 
@@ -73,36 +73,36 @@ class PeaksModel:
 class LocaleQuery:
     def __init__(
         self, 
-        sumtype: SumTypes, 
-        timecalc: TimePeriods, 
+        sum_type: SumTypes, 
+        time_calc: TimePeriods, 
         cycle: TimePeriods, 
-        sumcounter: SumCounter = None
+        sum_counter: SumCounter = None
         ) -> None:    
-        self._peaks:PeaksModel = PeaksModel({})
+        self._peaks: PeaksModel = PeaksModel({})
         self._props = QueryProperties(
-            sumtype, 
-            timecalc, 
+            sum_type, 
+            time_calc, 
             cycle
             )
-        self._sumcounter:SumCounter= sumcounter
-        self._observed_peak_value:float = 0 
-        self._charged_peak_value:float = 0
+        self._sum_counter: SumCounter= sum_counter
+        self._observed_peak_value: float = 0 
+        self._charged_peak_value: float = 0
 
     @property
     def peaks(self) -> dict:
         ppdict = {}
         for pp in self._peaks.p:
-            ppkey = str(str(pp[0]) + "h" + str(pp[1]))
-            ppdict[ppkey] = self._peaks.p[pp]
+            ppkey = f"{str(pp[0])}h{str(pp[1])}"
+            ppdict[ppkey] = self._peaks.p.get(pp)
         return {
             "m": self._peaks.m,
             "p": ppdict
         }
 
     @property
-    def sumcounter(self) -> SumCounter:
-        if self._sumcounter is not None:
-            return self._sumcounter
+    def sum_counter(self) -> SumCounter:
+        if self._sum_counter is not None:
+            return self._sum_counter
         return SumCounter()
 
     @property
@@ -115,46 +115,46 @@ class LocaleQuery:
 
     @property
     def observed_peak(self) -> float: 
-        return self.charged_peak if self._props.sumtype is SumTypes.Max else self._observed_peak_value
+        return self.charged_peak if self._props.sum_type is SumTypes.Max else self._observed_peak_value
 
     @observed_peak.setter
     def observed_peak(self, val):
         self._observed_peak_value = val
 
-    def try_update(self, newval, dt = datetime.now()):
+    def try_update(self, new_val, dt = datetime.now()):
         _dt = (dt.day, dt.hour)
-        if len(self._peaks.p) == 0:
+        if not self._peaks.p:
             """first addition for this month"""
-            self._peaks.p[_dt] = newval
+            self._peaks.p[_dt] = new_val
             self._peaks.m = dt.month
         elif dt.month != self._peaks.m:
             """new month, reset"""
-            self.reset_values(newval, dt)
+            self.reset_values(new_val, dt)
         elif _dt in self._peaks.p.keys():
-           self._set_update_for_groupby(newval, _dt)
-        elif newval > min(self._peaks.p.values()):
-            self._peaks.p[_dt] = newval
-        elif len(self._peaks.p) < self.sumcounter.counter:
-            self._peaks.p[_dt] = newval
+           self._set_update_for_groupby(new_val, _dt)
+        elif new_val > min(self._peaks.p.values()):
+            self._peaks.p[_dt] = new_val
+        elif len(self._peaks.p) < self.sum_counter.counter:
+            self._peaks.p[_dt] = new_val
 
-        if len(self._peaks.p) > self.sumcounter.counter:
+        if len(self._peaks.p) > self.sum_counter.counter:
                 self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
         self._update_peaks()
 
-    def _set_update_for_groupby(self, newval, _dt):
-        if self.sumcounter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekey = [k for k,v in self._peaks.p.items() if _dt[0] in k][0]
-            if newval > self._peaks.p[_datekey]:
-                    self._peaks.p.pop(_datekey)
-                    self._peaks.p[_dt] = newval
-        elif self.sumcounter.groupby is TimePeriods.Hourly:
-            if newval > self._peaks.p[_dt]:
-                    self._peaks.p[_dt] = newval
+    def _set_update_for_groupby(self, new_val, dt):
+        if self.sum_counter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
+            date_key = [k for k, v in self._peaks.p.items() if dt[0] in k][0]
+            if new_val > self._peaks.p[date_key]:
+                    self._peaks.p.pop(date_key)
+                    self._peaks.p[dt] = new_val
+        elif self.sum_counter.groupby is TimePeriods.Hourly:
+            if new_val > self._peaks.p.get(dt):
+                    self._peaks.p[dt] = new_val
 
     def _update_peaks(self):
-        if self._props.sumtype is SumTypes.Max:
+        if self._props.sum_type is SumTypes.Max:
             self.charged_peak = max(self._peaks.p.values())
-        elif self._props.sumtype is SumTypes.Avg:
+        elif self._props.sum_type is SumTypes.Avg:
             self.observed_peak = min(self._peaks.p.values())
             self.charged_peak = sum(self._peaks.p.values()) / len(self._peaks.p)
 
@@ -163,9 +163,9 @@ class LocaleQuery:
         self.try_update(newval, dt)
 
 QUERYTYPES = {
-    QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
-    QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
-    QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
+    QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
+    QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
+    QUERYTYPE_BASICMAX: LocaleQuery(sum_type=SumTypes.Max, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly)
 }
 
 
