@@ -54,13 +54,13 @@ def test_prediction_second_negative():
               poweravg=420,
               totalhourlyenergy=0.24)
 
-def test_prediction_hourlyenergy_negative():
-       with pytest.raises(ValueError):
-              p.predictedenergy(
-              nowmin=50,
-              nowsec=4,
-              poweravg=420,
-              totalhourlyenergy=-0.24)
+# def test_prediction_hourlyenergy_negative():
+#        with pytest.raises(ValueError):
+#               p.predictedenergy(
+#               nowmin=50,
+#               nowsec=4,
+#               poweravg=420,
+#               totalhourlyenergy=-0.24)
 
 
 def test_prediction_quarterly():
