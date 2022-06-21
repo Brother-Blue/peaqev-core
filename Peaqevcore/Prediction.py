@@ -1,5 +1,10 @@
 from .util import _convert_quarterly_minutes
 
+
+class PeaqValueError(ValueError):
+    def __init__(self, message):
+        self.message = message
+
 class PredictionBase:
     @staticmethod
     def predictedenergy(
@@ -10,11 +15,11 @@ class PredictionBase:
             is_quarterly:bool=False
     ) -> float:
         if nowmin not in range(0, 60):
-            raise ValueError
+            raise PeaqValueError("Value 'nowmin' must be between 0..60")
         if nowsec not in range(0, 60):
-            raise ValueError
+            raise PeaqValueError("Value 'nowmax' must be between 0..60")
         if poweravg < 0 or totalhourlyenergy < 0:
-            raise ValueError
+            raise PeaqValueError("Value 'poweravg' or 'totalhourlyenergy' must be greater than or equal to 0")
 
         minute = _convert_quarterly_minutes(nowmin, is_quarterly)
 
