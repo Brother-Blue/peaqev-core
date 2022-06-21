@@ -1,31 +1,5 @@
 import time
-
-class PowerReading:
-    def __init__(self, price, power, td) -> None:
-        self._price = price
-        self._power = power
-        self._time_delta = td
-    
-    @property
-    def reading_integral(self):
-        return self.power/1000 * (self.time_delta/3600)
-
-    @property
-    def reading_cost(self):
-        return self.reading_integral * self.price
-
-    @property
-    def price(self):
-        return self._price
-
-    @property
-    def power(self):
-        return self._power
-
-    @property
-    def time_delta(self):
-        return self._time_delta
-
+from .power_reading import PowerReading
 
 class SessionPrice:
     def __init__(self) -> None:
