@@ -31,6 +31,6 @@ class PredictionBase:
     ) -> float:
         if peak == 0.0 or peak is None:
             return 0
-        elif predictedenergy == 0.0 or predictedenergy is None:
+        elif predictedenergy <= 0.0 or predictedenergy is None:
             return 0
         return round((predictedenergy / peak) * 100, 2)
