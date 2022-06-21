@@ -1,4 +1,4 @@
-from ..Prediction import PredictionBase as p
+from ..prediction_service.prediction import PredictionBase as p
 import pytest
 
 def test_prediction():

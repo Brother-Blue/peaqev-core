@@ -1,4 +1,4 @@
-from ..locale.querytypes.const import (
+from ..locale_service.querytypes.const import (
     QUERYTYPE_AVERAGEOFFIVEDAYS, 
     QUERYTYPE_AVERAGEOFFIVEDAYS_MIN, 
     QUERYTYPE_AVERAGEOFTHREEDAYS, 
@@ -13,9 +13,9 @@ from ..locale.querytypes.const import (
     QUERYTYPE_AVERAGEOFTHREEHOURS
 )
 
-from ..locale.querytypes.querytypes import QUERYTYPES
+from ..locale_service.querytypes.querytypes import QUERYTYPES
 from dataclasses import dataclass
-from ..locale.locale_model import Locale_Type
+from ..locale_service.locale_model import Locale_Type
 
 
 @dataclass(frozen=True)

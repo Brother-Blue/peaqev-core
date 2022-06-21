@@ -1,8 +1,8 @@
-from ..locale.querytypes.const import (
+from ..locale_service.querytypes.const import (
     QUERYTYPE_BASICMAX
 )
 
-from ..locale.locale_model import Locale_Type
+from ..locale_service.locale_model import Locale_Type
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

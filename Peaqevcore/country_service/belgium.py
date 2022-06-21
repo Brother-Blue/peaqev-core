@@ -1,7 +1,7 @@
-from ..locale.querytypes.querytypes import QUERYTYPES
-from ..locale.querytypes.const import (QUARTER_HOURLY, QUERYTYPE_BASICMAX)
+from ..locale_service.querytypes.querytypes import QUERYTYPES
+from ..locale_service.querytypes.const import (QUARTER_HOURLY, QUERYTYPE_BASICMAX)
 from dataclasses import dataclass
-from ..locale.locale_model import Locale_Type
+from ..locale_service.locale_model import Locale_Type
 
 
 @dataclass(frozen=True)

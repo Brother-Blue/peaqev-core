@@ -1,4 +1,4 @@
-from .util import _convert_quarterly_minutes
+from ..util import _convert_quarterly_minutes
 
 class PredictionBase:
     @staticmethod

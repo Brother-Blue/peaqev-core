@@ -1,9 +1,9 @@
 from datetime import datetime, date, time
 import pytest
 
-from ..locale.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPE_SOLLENTUNA
-from ..locale.querytypes.querytypes import QUERYTYPES
-from ..country.sweden import SE_SHE_AB, SE_Bjerke_Energi, SE_Gothenburg, SE_Kristinehamn, SE_Skovde, SE_Sollentuna
+from ..locale_service.querytypes.const import QUERYTYPE_AVERAGEOFTHREEDAYS, QUERYTYPE_AVERAGEOFTHREEHOURS, QUERYTYPE_SOLLENTUNA
+from ..locale_service.querytypes.querytypes import QUERYTYPES
+from ..country_service.sweden import SE_SHE_AB, SE_Bjerke_Energi, SE_Gothenburg, SE_Kristinehamn, SE_Skovde, SE_Sollentuna
 
 def test_SE_Bjerke_Energi():
     p = SE_Bjerke_Energi

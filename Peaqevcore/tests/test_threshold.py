@@ -1,5 +1,5 @@
-from ..Threshold import ThresholdBase as t
-from ..Models import CURRENTS_THREEPHASE_1_32
+from ..threshold_service.threshold import ThresholdBase as t
+from ..models.const import CURRENTS_THREEPHASE_1_32
 import pytest
 
 def test_start():

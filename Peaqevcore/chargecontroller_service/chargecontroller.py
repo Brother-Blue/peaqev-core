@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-from .Models import CHARGERSTATES
+from ..models.chargerstates import CHARGERSTATES
 
 class ChargeControllerBase:  
     def __init__(

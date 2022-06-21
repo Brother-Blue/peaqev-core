@@ -1,14 +1,14 @@
 from datetime import datetime
 import statistics as stat
 import operator
-from .Models import (
+from ..models.const import (
     CAUTIONHOURTYPE_SUAVE,
     CAUTIONHOURTYPE_INTERMEDIATE,
     CAUTIONHOURTYPE_AGGRESSIVE,
     CAUTIONHOURTYPE
 )
 
-from .hourselection.hoursselection_helpers import HourObject, HourObjectExtended, HourSelectionHelpers
+from .hoursselection_helpers import HourObject, HourObjectExtended, HourSelectionHelpers
 
 class Hoursselectionbase:
     def __init__(

@@ -1,16 +1,3 @@
-from enum import Enum
-
-class CHARGERSTATES(Enum):
-    Idle = 0
-    Connected = 1
-    Start = 2
-    Stop = 3
-    Done = 4
-    Error = 5
-    Charging = 6
-    Disabled = 7
-
-
 CURRENTS_ONEPHASE_1_16 = {3600: 16, 3150: 14, 2700: 12, 2250: 10, 1800: 8, 1350: 6}
 CURRENTS_THREEPHASE_1_16 = {11000: 16, 9625: 14, 8250: 12, 6875: 10, 5500: 8, 4100: 6}
 

@@ -1,8 +1,8 @@
 from unittest import mock
 import pytest
 import time
-from ..Chargecontroller import ChargeControllerBase
-from ..Models import CHARGERSTATES
+from ..chargecontroller_service.chargecontroller import ChargeControllerBase
+from ..models.chargerstates import CHARGERSTATES
 
 _CHARGERSTATESMOCK = {
     CHARGERSTATES.Idle: ["idle"],
