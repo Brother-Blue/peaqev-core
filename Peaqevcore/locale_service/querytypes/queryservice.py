@@ -3,32 +3,32 @@ from .models.enums import Dividents
 from .models.queryservice_model import queryservicemodel as model
 
 class QueryService:
-    def __init__(self, args:model = model()):
+    def __init__(self, args: model=model()):
         self._settings = args
     
-    def should_register_peak(self, dt:datetime) -> bool:
-        mainret = []
-        maingrouping = (s for s in self._settings.groups if s.divident is not Dividents.UNSET)
+    def should_register_peak(self, dt: datetime) -> bool:
+        main_ret = []
+        main_grouping = (s for s in self._settings.groups if s.divident is not Dividents.UNSET)
         print("hej2")
-        for s in maingrouping:
-            groupret = []
+        for s in main_grouping:
+            group_ret = []
             grouping = (a for a in s.dateparts if len(a.values) > 0)
             for a in grouping:
-                groupret.append(QueryService.datepart(a.type, a.dttype, a.values, dt))
+                group_ret.append(QueryService.datepart(a.type, a.dttype, a.values, dt))
             if s.divident is Dividents.AND:
-                mainret.append(all(groupret))
+                main_ret.append(all(group_ret))
             else:
-                mainret.append(any(groupret))
-        return any(mainret) if len(mainret) > 0 else True
+                main_ret.append(any(group_ret))
+        return any(main_ret) if len(main_ret) > 0 else True
 
     @staticmethod
-    def datepart(logic: str, dtpart: str, args: list[int], timer:datetime) -> bool:
-        if len(args) == 0:
+    def datepart(logic: str, dtpart: str, args: list[int], timer: datetime) -> bool:
+        if not args:
             return True
-        _arg = args if len(args) > 1 else args[0]
-        _logic = QueryService.LOGIC[logic](
-            QueryService.DATETIMEPARTS[dtpart](timer), 
-            _arg
+        arg = args if len(args) > 1 else args[0]
+        _logic = QueryService.LOGIC.get(logic)(
+            QueryService.DATETIMEPARTS.get(dtpart)(timer), 
+            arg
             )
         print(f"{dtpart}: {_logic}. datetime: {timer}")
         return _logic
