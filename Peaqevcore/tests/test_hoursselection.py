@@ -18,6 +18,8 @@ PRICES_ARRAYSTR = "6.0,6.0,6.0,6.06,6.0,6.0,6.6,6,6,6,6,6,6,6"
 MOCKPRICES6 = [1.057, 1.028, 0.826, 0.87, 1.15, 1.754, 2.42, 2.918, 3.262, 3.009, 2.594, 2.408, 2.364, 2.34, 2.306, 2.376, 2.494, 2.626, 2.626, 2.516, 2.564, 2.565, 2.489, 1.314]
 MOCKPRICES_CHEAP = [0.042, 0.034, 0.026, 0.022, 0.02, 0.023, 0.027, 0.037, 0.049, 0.068, 0.08, 0.093, 0.093, 0.091, 0.103, 0.178, 0.36, 0.427, 1.032, 0.972, 0.551, 0.628, 0.404, 0.355]
 MOCKPRICES_EXPENSIVE = [0.366, 0.359, 0.357, 0.363, 0.402, 2.026, 4.036, 4.935, 6.689, 4.66, 4.145, 4.094, 3.526, 2.861, 2.583, 2.456, 2.414, 2.652, 2.799, 3.896, 4.232, 4.228, 3.824, 2.084]
+MOCK220621 = [1.987, 1.813, 0.996, 0.527, 0.759, 1.923, 3.496, 4.512, 4.375, 3.499, 2.602, 2.926, 2.857, 2.762, 2.354, 2.678, 3.117, 2.384, 3.062, 2.376, 2.245, 2.046, 1.84, 0.372]
+MOCK220622 = [0.142, 0.106, 0.1, 0.133, 0.266, 0.412, 2.113, 3, 4.98, 4.374, 3.913, 3.796, 3.491, 3.241, 3.173, 2.647, 2.288, 2.254, 2.497, 2.247, 2.141, 2.2, 2.113, 0.363]
 
 def test_mockprices1_non_hours():
     r = h()
@@ -273,6 +275,13 @@ def test_cheap_today_expensive_tomorrow_top_up():
     assert r.non_hours == [5, 6, 7, 8, 9, 10, 11, 12]
     assert r.dynamic_caution_hours == {13: 0.72}
 
+def test_cheap_today_expensive_tomorrow_top_up_top_price():
+    MOCKHOUR = 22
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], allow_top_up=True, base_mock_hour=MOCKHOUR, absolute_top_price=1)
+    r.prices = MOCK220621
+    r.prices_tomorrow = MOCK220622
+    r.update()
+    assert r.non_hours == [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
 
 def test_cheap_today_expensive_tomorrow_no_top_up():
     MOCKHOUR = 14
@@ -313,4 +322,7 @@ def test_EXPENSIVE_today_only():
     r.update(MOCKHOUR)
     assert r.non_hours == [8]
     assert r.dynamic_caution_hours == {7: 0.41,9: 0.45,10: 0.53,11: 0.54,12: 0.62, 13: 0.72,14: 0.76,15: 0.78,16: 0.79,17: 0.75,18: 0.73, 19: 0.57, 20: 0.52, 21: 0.52, 22: 0.58, 23: 0.84}
+    
+
+
     
