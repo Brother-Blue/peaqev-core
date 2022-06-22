@@ -324,5 +324,35 @@ def test_EXPENSIVE_today_only():
     assert r.dynamic_caution_hours == {7: 0.41,9: 0.45,10: 0.53,11: 0.54,12: 0.62, 13: 0.72,14: 0.76,15: 0.78,16: 0.79,17: 0.75,18: 0.73, 19: 0.57, 20: 0.52, 21: 0.52, 22: 0.58, 23: 0.84}
     
 
+def test_new_test():
+    MOCKHOUR = 13
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=2.0, min_price=0.5, allow_top_up=False)
+    r.prices = [0.142, 0.106, 0.1, 0.133, 0.266, 0.412, 2.113, 3, 4.98, 4.374, 3.913, 3.796, 3.491, 3.241, 3.173, 2.647, 2.288, 2.254, 2.497, 2.247, 2.141, 2.2, 2.113, 0.363]
+    r.prices_tomorrow = [0.063, 0.039, 0.032, 0.034, 0.043, 0.274, 0.539, 1.779, 2.002, 1.75, 1.388, 1.195, 1.162, 0.962, 0.383, 0.387, 0.63, 1.202, 1.554, 1.75, 1.496, 1.146, 0.424, 0.346]
+    r.update(MOCKHOUR)
+    assert r.non_hours == [13,14,15,16,17,18,19,20,21,22,7,8,9]
 
+def test_new_test_2():
+    MOCKHOUR = 13
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=2.0, min_price=0.5, allow_top_up=True)
+    r.prices = [0.142, 0.106, 0.1, 0.133, 0.266, 0.412, 2.113, 3, 4.98, 4.374, 3.913, 3.796, 3.491, 3.241, 3.173, 2.647, 2.288, 2.254, 2.497, 2.247, 2.141, 2.2, 2.113, 0.363]
+    r.prices_tomorrow = [0.063, 0.039, 0.032, 0.034, 0.043, 0.274, 0.539, 1.779, 2.002, 1.75, 1.388, 1.195, 1.162, 0.962, 0.383, 0.387, 0.63, 1.202, 1.554, 1.75, 1.496, 1.146, 0.424, 0.346]
+    r.update(MOCKHOUR)
+    assert r.non_hours == [8,13,14,15,16,17,18,19,20,21,22]
+    
+def test_new_test_3():
+    MOCKHOUR = 13
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=0, min_price=0.5, allow_top_up=False)
+    r.prices = [0.142, 0.106, 0.1, 0.133, 0.266, 0.412, 2.113, 3, 4.98, 4.374, 3.913, 3.796, 3.491, 3.241, 3.173, 2.647, 2.288, 2.254, 2.497, 2.247, 2.141, 2.2, 2.113, 0.363]
+    r.prices_tomorrow = [0.063, 0.039, 0.032, 0.034, 0.043, 0.274, 0.539, 1.779, 2.002, 1.75, 1.388, 1.195, 1.162, 0.962, 0.383, 0.387, 0.63, 1.202, 1.554, 1.75, 1.496, 1.146, 0.424, 0.346]
+    r.update(MOCKHOUR)
+    assert r.non_hours == [7,8,9]
+
+def test_new_test_4():
+    MOCKHOUR = 13
+    r = h(cautionhour_type=CAUTIONHOURTYPE[CAUTIONHOURTYPE_SUAVE], absolute_top_price=0, min_price=0.5, allow_top_up=True)
+    r.prices = [0.142, 0.106, 0.1, 0.133, 0.266, 0.412, 2.113, 3, 4.98, 4.374, 3.913, 3.796, 3.491, 3.241, 3.173, 2.647, 2.288, 2.254, 2.497, 2.247, 2.141, 2.2, 2.113, 0.363]
+    r.prices_tomorrow = [0.063, 0.039, 0.032, 0.034, 0.043, 0.274, 0.539, 1.779, 2.002, 1.75, 1.388, 1.195, 1.162, 0.962, 0.383, 0.387, 0.63, 1.202, 1.554, 1.75, 1.496, 1.146, 0.424, 0.346]
+    r.update(MOCKHOUR)
+    assert r.non_hours == [13,14,15,16,17,18,19,20,21,22]
     
