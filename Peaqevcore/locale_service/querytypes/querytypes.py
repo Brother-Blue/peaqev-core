@@ -26,22 +26,22 @@ _LOGGER = logging.getLogger(__name__)
 class LocaleQuery:
     def __init__(
         self, 
-        sumtype: SumTypes, 
-        timecalc: TimePeriods, 
+        sum_type: SumTypes, 
+        time_calc: TimePeriods, 
         cycle: TimePeriods, 
-        sumcounter: SumCounter = None,
-        queryservice: QueryService = QueryService()
+        sum_counter: SumCounter = None,
+        query_service: QueryService = QueryService()
         ) -> None:    
-        self._peaks:PeaksModel = PeaksModel({})
+        self._peaks: PeaksModel = PeaksModel({})
         self._props = QueryProperties(
-            sumtype, 
-            timecalc, 
+            sum_type, 
+            time_calc, 
             cycle,
-            queryservice
+            query_service
             )
-        self._sumcounter:SumCounter= sumcounter
-        self._observed_peak_value:float = 0 
-        self._charged_peak_value:float = 0
+        self._sum_counter: SumCounter= sum_counter
+        self._observed_peak_value: float = 0 
+        self._charged_peak_value: float = 0
 
     def reset(self) -> None:
         self._peaks.reset()
@@ -52,8 +52,8 @@ class LocaleQuery:
     def peaks_export(self) -> dict:
         ppdict = {}
         for pp in self._peaks.p:
-            ppkey = str(str(pp[0]) + "h" + str(pp[1]))
-            ppdict[ppkey] = self._peaks.p[pp]
+            ppkey = f"{pp[0]}h{pp[1]}"
+            ppdict[ppkey] = self._peaks.p.get(pp)
         return {
             "m": self._peaks.m,
             "p": ppdict
@@ -66,9 +66,9 @@ class LocaleQuery:
         return self._peaks
 
     @property
-    def sumcounter(self) -> SumCounter:
-        if self._sumcounter is not None:
-            return self._sumcounter
+    def sum_counter(self) -> SumCounter:
+        if self._sum_counter is not None:
+            return self._sum_counter
         return SumCounter()
 
     @property
@@ -93,7 +93,7 @@ class LocaleQuery:
     def observed_peak(self, val):
         self._observed_peak_value = val
 
-    def try_update(self, newval, timestamp:datetime = datetime.now()):
+    def try_update(self, new_val, timestamp: datetime=datetime.now()):
         if self._props.queryservice.should_register_peak(dt=timestamp) is False:
             return
         if self.peaks.is_dirty:
@@ -101,32 +101,32 @@ class LocaleQuery:
         _dt = (timestamp.day, timestamp.hour)
         if len(self.peaks.p) == 0:
             """first addition for this month"""
-            self._peaks.p[_dt] = newval
+            self._peaks.p[_dt] = new_val
             self._peaks.m = timestamp.month
         elif timestamp.month != self._peaks.m:
             """new month, reset"""
-            self.reset_values(newval, timestamp)
+            self.reset_values(new_val, timestamp)
         else:
-            self._set_update_for_groupby(newval, _dt)
-        if len(self.peaks.p) > self.sumcounter.counter:
+            self._set_update_for_groupby(new_val, _dt)
+        if len(self.peaks.p) > self.sum_counter.counter:
                 self.peaks.p.pop(min(self.peaks.p, key=self._peaks.p.get))
         self._update_peaks()
 
-    def _set_update_for_groupby(self, newval, _dt):
-        if self.sumcounter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekeys = [k for k,v in self.peaks.p.items() if _dt[0] in k]
+    def _set_update_for_groupby(self, new_val, dt):
+        if self.sum_counter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
+            _datekeys = [k for k,v in self.peaks.p.items() if dt[0] in k]
             if len(_datekeys) > 0:
-                if newval > self.peaks.p[_datekeys[0]]:
+                if new_val > self.peaks.p[_datekeys[0]]:
                         self.peaks.p.pop(_datekeys[0])
-                        self.peaks.p[_dt] = newval
+                        self.peaks.p[dt] = new_val
             else:
-                self.peaks.p[_dt] = newval
-        elif self.sumcounter.groupby == TimePeriods.Hourly:
-            if _dt in self._peaks.p.keys():
-                if newval > self.peaks.p[_dt]:
-                        self.peaks.p[_dt] = newval
+                self.peaks.p[dt] = new_val
+        elif self.sum_counter.groupby == TimePeriods.Hourly:
+            if dt in self._peaks.p.keys():
+                if new_val > self.peaks.p.get(dt):
+                        self.peaks.p[dt] = new_val
             else:
-                self.peaks.p[_dt] = newval
+                self.peaks.p[dt] = new_val
 
     def _update_peaks(self):
         if self._props.sumtype is SumTypes.Max:
@@ -135,39 +135,39 @@ class LocaleQuery:
             self.observed_peak = min(self._peaks.p.values())
             self.charged_peak = sum(self._peaks.p.values()) / len(self._peaks.p)
 
-    def reset_values(self, newval, dt = datetime.now()):
+    def reset_values(self, new_val, dt = datetime.now()):
         self._peaks.p.clear()
-        self.try_update(newval, dt)
+        self.try_update(new_val, dt)
 
     def _sanitize_values(self):
-        def countX(lst, x):
-            count = 0
-            for ele in lst:
-                if ele[0] == x:
-                    count = count + 1
-            return count
-        if self.sumcounter.groupby == TimePeriods.Daily:
+        countX = lambda arr, x: len([a for a in arr if a[0] == x])
+        # def countX(lst, x):
+        #     for ele in lst:
+        #         if ele[0] == x:
+        #             count = count + 1
+        #     return count
+        if self.sum_counter.groupby == TimePeriods.Daily:
             duplicates = {}
             for k in self._peaks.p.keys():
                 if countX(self._peaks.p.keys(), k[0]) > 1:
-                    duplicates[k] = self._peaks.p[k]
-            if len(duplicates) > 0:
+                    duplicates[k] = self._peaks.p.get(k)
+            if duplicates:
                 minkey = min(duplicates, key=duplicates.get)
                 self._peaks.p.pop(minkey)
                     
-        while len(self._peaks.p) > self.sumcounter.counter:
+        while len(self._peaks.p) > self.sum_counter.counter:
             self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
         self._peaks.is_dirty = False
         self._update_peaks()
 
 QUERYTYPES = {
-    QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
-    QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
-    QUERYTYPE_BASICMAX: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
-    QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=5, groupby=TimePeriods.Daily)),
-    QUERYTYPE_SOLLENTUNA: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryservice=QueryService(QUERYSETS[QUERYTYPE_SOLLENTUNA])),
-    QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, queryservice=QueryService(QUERYSETS[QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22])),
-    QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19: LocaleQuery(sumtype=SumTypes.Avg, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sumcounter=SumCounter(counter=3, groupby=TimePeriods.Hourly), queryservice=QueryService(QUERYSETS[QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19])),
-    QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, queryservice=QueryService(QUERYSETS[QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR])),
-    QUERYTYPE_HIGHLOAD: LocaleQuery(sumtype=SumTypes.Max, timecalc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, queryservice=QueryService(QUERYSETS[QUERYTYPE_HIGHLOAD]))
+    QUERYTYPE_AVERAGEOFTHREEHOURS: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Hourly)),
+    QUERYTYPE_AVERAGEOFTHREEDAYS: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Daily)),
+    QUERYTYPE_BASICMAX: LocaleQuery(sum_type=SumTypes.Max, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly),
+    QUERYTYPE_AVERAGEOFFIVEDAYS: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=5, groupby=TimePeriods.Daily)),
+    QUERYTYPE_SOLLENTUNA: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Hourly), query_service=QueryService(QUERYSETS[QUERYTYPE_SOLLENTUNA])),
+    QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22: LocaleQuery(sum_type=SumTypes.Max, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, query_service=QueryService(QUERYSETS[QUERYTYPE_MAX_NOV_MAR_MON_FRI_06_22])),
+    QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19: LocaleQuery(sum_type=SumTypes.Avg, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, sum_counter=SumCounter(counter=3, groupby=TimePeriods.Hourly), query_service=QueryService(QUERYSETS[QUERYTYPE_AVERAGEOFTHREEHOURS_MON_FRI_07_19])),
+    QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR: LocaleQuery(sum_type=SumTypes.Max, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, query_service=QueryService(QUERYSETS[QUERYTYPE_BASICMAX_MON_FRI_07_17_DEC_MAR_ELSE_REGULAR])),
+    QUERYTYPE_HIGHLOAD: LocaleQuery(sum_type=SumTypes.Max, time_calc=TimePeriods.Hourly, cycle=TimePeriods.Monthly, query_service=QueryService(QUERYSETS[QUERYTYPE_HIGHLOAD]))
 }

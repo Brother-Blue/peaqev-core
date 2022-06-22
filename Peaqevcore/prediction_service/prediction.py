@@ -1,13 +1,9 @@
 from ..util import _convert_quarterly_minutes
-
-
-class PeaqValueError(ValueError):
-    def __init__(self, message):
-        self.message = message
+from ..PeaqErrors import PeaqValueError
 
 class PredictionBase:
     @staticmethod
-    def predictedenergy(
+    def predicted_energy(
             now_min: int,
             now_sec: int,
             power_avg: float,
@@ -15,11 +11,11 @@ class PredictionBase:
             is_quarterly:bool=False
     ) -> float:
         if now_min not in range(0, 60):
-            raise PeaqValueError("Value 'now_min' must be between 0..60")
+            raise PeaqValueError(f"Value 'now_min' ({now_min}) must be between (0..60]")
         if now_sec not in range(0, 60):
-            raise PeaqValueError("Value 'now_max' must be between 0..60")
+            raise PeaqValueError(f"Value 'now_max' ({now_sec}) must be between (0..60]")
         if power_avg < 0 or total_hourly_energy < 0:
-            raise PeaqValueError("Value 'power_avg' or 'total_hourly_energy' must be greater than or equal to 0")
+            raise PeaqValueError(f"Value 'power_avg' ({power_avg}) or 'total_hourly_energy' ({total_hourly_energy}) must be greater than or equal to 0")
 
         minute = _convert_quarterly_minutes(now_min, is_quarterly)
 
@@ -30,7 +26,7 @@ class PredictionBase:
         return round(ret, 3)
 
     @staticmethod
-    def predictedpercentageofpeak(
+    def predicted_percentage_of_peak(
             peak: float,
             predicted_energy: float
     ) -> float:
