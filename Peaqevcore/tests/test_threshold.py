@@ -85,37 +85,37 @@ def test_stop_quarterly_caution():
 
 
 def test_allowed_current_negative_movingavg():
-    ret = t.allowedcurrent(
-        nowmin=10,
-        movingavg=-560,
+    ret = t.allowed_current(
+        now_min=10,
+        moving_avg=-560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=0.3,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=0.3,
         peak=10
     )
     assert ret == 16
 
 def test_allowed_current_negative_totalenergy():
-    ret = t.allowedcurrent(
-        nowmin=10,
-        movingavg=560,
+    ret = t.allowed_current(
+        now_min=10,
+        moving_avg=560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=-0.3,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=-0.3,
         peak=10
     )
     assert ret == 16
 
 def test_allowed_current_negative_totalenergy_and_movingavg():
-    ret = t.allowedcurrent(
-        nowmin=10,
-        movingavg=-1560,
+    ret = t.allowed_current(
+        now_min=10,
+        moving_avg=-1560,
         charger_enabled=True,
         charger_done=False,
-        currentsdict=CURRENTS_THREEPHASE_1_32,
-        totalenergy=-0.3,
+        currents_dict=CURRENTS_THREEPHASE_1_32,
+        total_energy=-0.3,
         peak=10
     )
     assert ret == 20
