@@ -1,17 +1,4 @@
 import statistics as stat
-from dataclasses import dataclass
-
-
-@dataclass
-class HourObject:
-    nh: list
-    ch: list
-    dyn_ch: dict
-
-
-@dataclass
-class HourObjectExtended(HourObject):
-    pricedict: dict
 
 
 class HourSelectionHelpers:
@@ -64,18 +51,6 @@ class HourSelectionHelpers:
             except:
                 return []
         return []
-
-    @staticmethod
-    def _create_partial_dict(input: list, hour:int, today:bool = True):
-        ret = {}
-        if today:
-            dictrange = range(hour,24)
-        else:
-            dictrange = range(0,hour-1)
-        assert len(dictrange) == len(input)
-        for idx, val in enumerate(input):
-            ret[dictrange[idx]] = val
-        return ret
 
     @staticmethod
     def _normalize_prices(prices:list) -> list:
