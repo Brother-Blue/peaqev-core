@@ -49,17 +49,6 @@ class LocaleQuery:
         self._charged_peak_value = 0
 
     @property
-    def peaks_export(self) -> dict:
-        ppdict = {}
-        for pp in self._peaks.p:
-            ppkey = f"{pp[0]}h{pp[1]}"
-            ppdict[ppkey] = self._peaks.p.get(pp)
-        return {
-            "m": self._peaks.m,
-            "p": ppdict
-        }
-
-    @property
     def peaks(self) -> PeaksModel:
         if self._peaks.is_dirty:
             self._sanitize_values()
@@ -96,68 +85,63 @@ class LocaleQuery:
     def try_update(self, new_val, timestamp: datetime=datetime.now()):
         if self._props.queryservice.should_register_peak(dt=timestamp) is False:
             return
-        if self.peaks.is_dirty:
-            self._sanitize_values()
+        #* When using self.peaks self._sanatize_values() is called
+        #* if self.peaks.is_dirty
+        # if self.peaks.is_dirty:
+        #     self._sanitize_values()
         _dt = (timestamp.day, timestamp.hour)
         if len(self.peaks.p) == 0:
             """first addition for this month"""
-            self._peaks.p[_dt] = new_val
-            self._peaks.m = timestamp.month
+            self.peaks.add_kv_pair(_dt, new_val)
+            self._peaks.set_month(timestamp.month)
         elif timestamp.month != self._peaks.m:
             """new month, reset"""
             self.reset_values(new_val, timestamp)
         else:
             self._set_update_for_groupby(new_val, _dt)
         if len(self.peaks.p) > self.sum_counter.counter:
-                self.peaks.p.pop(min(self.peaks.p, key=self._peaks.p.get))
+                self.peaks.remove_min()
         self._update_peaks()
 
     def _set_update_for_groupby(self, new_val, dt):
         if self.sum_counter.groupby in [TimePeriods.Daily, TimePeriods.UnSet]:
-            _datekeys = [k for k,v in self.peaks.p.items() if dt[0] in k]
+            _datekeys = [k for k in self.peaks.p.keys() if dt[0] in k]
             if len(_datekeys) > 0:
-                if new_val > self.peaks.p[_datekeys[0]]:
-                        self.peaks.p.pop(_datekeys[0])
-                        self.peaks.p[dt] = new_val
+                if new_val > self.peaks.p.get(_datekeys[0]):
+                        self.peaks.pop_key(_datekeys[0])
+                        self.peaks.add_kv_pair(dt, new_val)
             else:
-                self.peaks.p[dt] = new_val
+                self.peaks.add_kv_pair(dt, new_val)
         elif self.sum_counter.groupby == TimePeriods.Hourly:
             if dt in self._peaks.p.keys():
                 if new_val > self.peaks.p.get(dt):
-                        self.peaks.p[dt] = new_val
+                        self.peaks.add_kv_pair(dt, new_val)
             else:
-                self.peaks.p[dt] = new_val
+                self.peaks.add_kv_pair(dt, new_val)
 
     def _update_peaks(self):
         if self._props.sumtype is SumTypes.Max:
-            self.charged_peak = max(self._peaks.p.values())
+            self.charged_peak = self._peaks.max_value
         elif self._props.sumtype is SumTypes.Avg:
-            self.observed_peak = min(self._peaks.p.values())
-            self.charged_peak = sum(self._peaks.p.values()) / len(self._peaks.p)
+            self.observed_peak = self._peaks.min_value
+            self.charged_peak = self._peaks.value_avg
 
     def reset_values(self, new_val, dt = datetime.now()):
-        self._peaks.p.clear()
+        self._peaks.clear()
         self.try_update(new_val, dt)
 
     def _sanitize_values(self):
         countX = lambda arr, x: len([a for a in arr if a[0] == x])
-        # def countX(lst, x):
-        #     for ele in lst:
-        #         if ele[0] == x:
-        #             count = count + 1
-        #     return count
         if self.sum_counter.groupby == TimePeriods.Daily:
-            duplicates = {}
-            for k in self._peaks.p.keys():
-                if countX(self._peaks.p.keys(), k[0]) > 1:
-                    duplicates[k] = self._peaks.p.get(k)
+            duplicates = dict([(k, self._peaks.get(k)) for k in self._peaks.p.keys() if countX(self._peaks.p.keys(), k[0] > 1)])
             if duplicates:
                 minkey = min(duplicates, key=duplicates.get)
-                self._peaks.p.pop(minkey)
+                self._peaks.pop_key(minkey)
                     
         while len(self._peaks.p) > self.sum_counter.counter:
-            self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
-        self._peaks.is_dirty = False
+            self._peaks.remove_min()
+            # self._peaks.p.pop(min(self._peaks.p, key=self._peaks.p.get))
+        self._peaks.set_dirty(False)
         self._update_peaks()
 
 QUERYTYPES = {

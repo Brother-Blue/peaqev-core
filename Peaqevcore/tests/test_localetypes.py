@@ -16,10 +16,10 @@ def test_generic_querytype_avg_threedays():
     pt.reset()
     pt.try_update(new_val=1.2, timestamp=datetime.combine(date(2022, 7, 14), time(20, 30)))
     pt.try_update(new_val=2, timestamp=datetime.combine(date(2022, 7, 14), time(21, 30)))
-    to_state_machine = pt.peaks_export
+    to_state_machine = pt.peaks.export_peaks
     pt.peaks.set_init_dict(to_state_machine)
     pt.try_update(new_val=0.6, timestamp=datetime.combine(date(2022, 7, 15), time(21, 30)))
-    assert len(pt.peaks.p) == 2
+    assert len(pt.peaks._p) == 2
     assert pt._charged_peak_value == 1.3
 
 def test_generic_querytype_avg_threedays2():
@@ -27,7 +27,7 @@ def test_generic_querytype_avg_threedays2():
     pg.reset()
     pg.try_update(new_val=1.2, timestamp=datetime.combine(date(2022, 7, 14), time(20, 30)))
     pg.try_update(new_val=2, timestamp=datetime.combine(date(2022, 7, 14), time(21, 30)))
-    assert len(pg.peaks.p) == 1
+    assert len(pg.peaks._p) == 1
     assert pg._charged_peak_value == 2
 
 def test_generic_querytype_avg_threedays3():
@@ -36,11 +36,11 @@ def test_generic_querytype_avg_threedays3():
     p1.reset()
     p1.try_update(new_val=1, timestamp=datetime.combine(date(2022, 7, 15), time(21, 30)))
     p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
-    assert len(p1.peaks.p) == 2
+    assert len(p1.peaks._p) == 2
     assert p1.charged_peak == 1.5
     assert p1.observed_peak == 1
     p1.try_update(new_val=2, timestamp=datetime.combine(date(2022, 7, 15), time(22, 30)))
-    assert len(p1.peaks.p) == 2
+    assert len(p1.peaks._p) == 2
     assert p1.charged_peak == 2
     assert p1.observed_peak == 2
 
@@ -50,11 +50,11 @@ def test_faulty_number_in_import():
     p1.reset()
     p1.try_update(new_val=1, timestamp=datetime.combine(date(2022, 7, 15), time(21, 30)))
     p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 15), time(21, 30)))
-    assert len(p1.peaks.p) == 3
+    assert len(p1.peaks._p) == 3
     assert p1.charged_peak == 1.81
     assert p1.observed_peak == 1.49
     p1.try_update(new_val=1.5, timestamp=datetime.combine(date(2022, 7, 15), time(22, 30)))
-    assert len(p1.peaks.p) == 3
+    assert len(p1.peaks._p) == 3
     assert p1.charged_peak == 1.81
     assert p1.observed_peak == 1.5
     
@@ -64,7 +64,7 @@ def test_overridden_number_in_import():
     p1.reset()
     p1.try_update(new_val=0.22, timestamp=datetime.combine(date(2022, 7, 13), time(21, 30)))
     p1.peaks.set_init_dict(to_state_machine, datetime.combine(date(2022, 7, 13), time(21, 30)))
-    print(p1.peaks.p)
+    print(p1.peaks._p)
     assert p1.charged_peak == 1.43
 
 def test_SE_Gothenburg():
